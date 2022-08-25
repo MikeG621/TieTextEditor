@@ -22,7 +22,7 @@ every time.
 ==========
 Version History
 
-v1.2, xx xxx 2022
+v1.2, 24 Aug 2022
 - Converted from legacy code to modern project style
 - Renamed to Tie Text Editor
 - Added MPL

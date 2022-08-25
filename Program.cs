@@ -7,7 +7,7 @@
  */
 
 /* CHANGELOG
- * v1.2, xxxxxx
+ * v1.2, 220824
  * [UPD] Updated from legacy
  */
 
