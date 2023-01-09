@@ -60,7 +60,9 @@ namespace Idmr.TieTextEditor
             this.cmdShPrev = new System.Windows.Forms.Button();
             this.txtTieText = new System.Windows.Forms.TextBox();
             this.txtString = new System.Windows.Forms.TextBox();
-            this.tabTieText0 = new System.Windows.Forms.TabPage();
+            this.tabTieText = new System.Windows.Forms.TabPage();
+            this.cmdTiePrev = new System.Windows.Forms.Button();
+            this.cmdTieNext = new System.Windows.Forms.Button();
             this.cmdTNext = new System.Windows.Forms.Button();
             this.cmdTPrev = new System.Windows.Forms.Button();
             this.cmdPrev2 = new System.Windows.Forms.Button();
@@ -72,8 +74,10 @@ namespace Idmr.TieTextEditor
             this.tabStrings = new System.Windows.Forms.TabPage();
             this.tabMaster = new System.Windows.Forms.TabControl();
             this.fldTie = new System.Windows.Forms.FolderBrowserDialog();
+            this.cmdPrevArray = new System.Windows.Forms.Button();
+            this.cmdNextArray = new System.Windows.Forms.Button();
             this.tabShipset.SuspendLayout();
-            this.tabTieText0.SuspendLayout();
+            this.tabTieText.SuspendLayout();
             this.tabStrings.SuspendLayout();
             this.tabMaster.SuspendLayout();
             this.SuspendLayout();
@@ -376,22 +380,45 @@ namespace Idmr.TieTextEditor
             this.txtString.TabIndex = 1;
             this.txtString.TextChanged += new System.EventHandler(this.txtStringTextChanged);
             // 
-            // tabTieText0
+            // tabTieText
             // 
-            this.tabTieText0.Controls.Add(this.lblTCount);
-            this.tabTieText0.Controls.Add(this.cmdTNext);
-            this.tabTieText0.Controls.Add(this.cmdTPrev);
-            this.tabTieText0.Controls.Add(this.cmdTNext2);
-            this.tabTieText0.Controls.Add(this.cmdPrev2);
-            this.tabTieText0.Controls.Add(this.cmdPrev3);
-            this.tabTieText0.Controls.Add(this.cmdTNext3);
-            this.tabTieText0.Controls.Add(this.lblTPos);
-            this.tabTieText0.Controls.Add(this.txtTieText);
-            this.tabTieText0.Location = new System.Drawing.Point(4, 22);
-            this.tabTieText0.Name = "tabTieText0";
-            this.tabTieText0.Size = new System.Drawing.Size(416, 158);
-            this.tabTieText0.TabIndex = 1;
-            this.tabTieText0.Text = "TieText0.lfd";
+            this.tabTieText.Controls.Add(this.cmdNextArray);
+            this.tabTieText.Controls.Add(this.cmdPrevArray);
+            this.tabTieText.Controls.Add(this.cmdTiePrev);
+            this.tabTieText.Controls.Add(this.cmdTieNext);
+            this.tabTieText.Controls.Add(this.lblTCount);
+            this.tabTieText.Controls.Add(this.cmdTNext);
+            this.tabTieText.Controls.Add(this.cmdTPrev);
+            this.tabTieText.Controls.Add(this.cmdTNext2);
+            this.tabTieText.Controls.Add(this.cmdPrev2);
+            this.tabTieText.Controls.Add(this.cmdPrev3);
+            this.tabTieText.Controls.Add(this.cmdTNext3);
+            this.tabTieText.Controls.Add(this.lblTPos);
+            this.tabTieText.Controls.Add(this.txtTieText);
+            this.tabTieText.Location = new System.Drawing.Point(4, 22);
+            this.tabTieText.Name = "tabTieText";
+            this.tabTieText.Size = new System.Drawing.Size(416, 158);
+            this.tabTieText.TabIndex = 1;
+            this.tabTieText.Text = "TieText0.lfd";
+            // 
+            // cmdTiePrev
+            // 
+            this.cmdTiePrev.Enabled = false;
+            this.cmdTiePrev.Location = new System.Drawing.Point(40, 100);
+            this.cmdTiePrev.Name = "cmdTiePrev";
+            this.cmdTiePrev.Size = new System.Drawing.Size(40, 24);
+            this.cmdTiePrev.TabIndex = 17;
+            this.cmdTiePrev.Text = "<File";
+            this.cmdTiePrev.Click += new System.EventHandler(this.cmdTiePrev_Click);
+            // 
+            // cmdTieNext
+            // 
+            this.cmdTieNext.Location = new System.Drawing.Point(360, 100);
+            this.cmdTieNext.Name = "cmdTieNext";
+            this.cmdTieNext.Size = new System.Drawing.Size(40, 24);
+            this.cmdTieNext.TabIndex = 16;
+            this.cmdTieNext.Text = "File>";
+            this.cmdTieNext.Click += new System.EventHandler(this.cmdTieNext_Click);
             // 
             // cmdTNext
             // 
@@ -487,7 +514,7 @@ namespace Idmr.TieTextEditor
             // tabMaster
             // 
             this.tabMaster.Controls.Add(this.tabStrings);
-            this.tabMaster.Controls.Add(this.tabTieText0);
+            this.tabMaster.Controls.Add(this.tabTieText);
             this.tabMaster.Controls.Add(this.tabShipset);
             this.tabMaster.Location = new System.Drawing.Point(0, 0);
             this.tabMaster.Name = "tabMaster";
@@ -498,6 +525,26 @@ namespace Idmr.TieTextEditor
             // fldTie
             // 
             this.fldTie.Description = "Select the TIE program directory";
+            // 
+            // cmdPrevArray
+            // 
+            this.cmdPrevArray.Location = new System.Drawing.Point(86, 100);
+            this.cmdPrevArray.Name = "cmdPrevArray";
+            this.cmdPrevArray.Size = new System.Drawing.Size(50, 24);
+            this.cmdPrevArray.TabIndex = 18;
+            this.cmdPrevArray.Text = "<Array";
+            this.cmdPrevArray.UseVisualStyleBackColor = true;
+            this.cmdPrevArray.Click += new System.EventHandler(this.cmdPrevArray_Click);
+            // 
+            // cmdNextArray
+            // 
+            this.cmdNextArray.Location = new System.Drawing.Point(304, 100);
+            this.cmdNextArray.Name = "cmdNextArray";
+            this.cmdNextArray.Size = new System.Drawing.Size(50, 24);
+            this.cmdNextArray.TabIndex = 18;
+            this.cmdNextArray.Text = "Array>";
+            this.cmdNextArray.UseVisualStyleBackColor = true;
+            this.cmdNextArray.Click += new System.EventHandler(this.cmdNextArray_Click);
             // 
             // MainForm
             // 
@@ -512,8 +559,8 @@ namespace Idmr.TieTextEditor
             this.Text = "TIE Text Reader";
             this.tabShipset.ResumeLayout(false);
             this.tabShipset.PerformLayout();
-            this.tabTieText0.ResumeLayout(false);
-            this.tabTieText0.PerformLayout();
+            this.tabTieText.ResumeLayout(false);
+            this.tabTieText.PerformLayout();
             this.tabStrings.ResumeLayout(false);
             this.tabStrings.PerformLayout();
             this.tabMaster.ResumeLayout(false);
@@ -540,7 +587,7 @@ namespace Idmr.TieTextEditor
 		private System.Windows.Forms.Label lblSCount;
 		private System.Windows.Forms.Button cmdPrev2;
 		private System.Windows.Forms.Button cmdPrev3;
-		private System.Windows.Forms.TabPage tabTieText0;
+		private System.Windows.Forms.TabPage tabTieText;
 		private System.Windows.Forms.TextBox txtString;
 		private System.Windows.Forms.TextBox txtTieText;
 		private System.Windows.Forms.TabPage tabShipset;
@@ -565,5 +612,9 @@ namespace Idmr.TieTextEditor
 		private System.Windows.Forms.TextBox txtLine5;
 		private System.Windows.Forms.TextBox txtLine4;
         private System.Windows.Forms.FolderBrowserDialog fldTie;
+        private System.Windows.Forms.Button cmdTiePrev;
+        private System.Windows.Forms.Button cmdTieNext;
+        private System.Windows.Forms.Button cmdNextArray;
+        private System.Windows.Forms.Button cmdPrevArray;
     }
 }

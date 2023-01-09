@@ -1,9 +1,9 @@
 /*
  * TieTextEditor.exe, Allows the editing of TEXT resources and STRINGS.DAT from TIE
- * Copyright (C) 2006-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2006-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
- * VERSION: 1.2
+ * VERSION: 1.2+
  */
 
 /* CHANGELOG
@@ -19,16 +19,15 @@ using System.Windows.Forms;
 namespace Idmr.TieTextEditor
 {
 	/// <summary>
-	/// Reads and edits STRINGS.DAT, TieText0.lfd, and Shipset#.lfd
+	/// Reads and edits STRINGS.DAT, TieText#.lfd, and Shipset#.lfd
 	/// 
 	/// S buttons for navigating 1/20/100 strings at a time
 	/// T buttons for 1/5/20
 	/// Sh buttons for 1/5/10
 	/// tabs seperating files
-	/// TieText is only for ships
 	/// 
 	/// 'S' prefix denotes STRINGS.DAT
-	/// 'T' prefix denotes TieText0.lfd
+	/// 'T' prefix denotes TieText#.lfd
 	/// 'Sh' prefix denotes Shipset#.lfd (all-in-one)
 	/// </summary>
 	public partial class MainForm : Form
@@ -37,14 +36,17 @@ namespace Idmr.TieTextEditor
 		int _activeString;
 		string _stringsOriginal;
 		// TieText
+		int _currentTieTextFile;
 		int _activeTieText;
 		string[] _tieTextSubstrings;
 		long _tieTextOffset;
+		int _currentTTArray = 2;
+		Text _text;
 		// Shipset
 		int _activeShipset;
 		string[] _shipsetStrings;
-		// other
-		string _filePath;
+        // other
+        readonly string _filePath;
 
 		public MainForm()
 		{
@@ -77,19 +79,11 @@ namespace Idmr.TieTextEditor
 				throw new DirectoryNotFoundException();
 			}
 
-			//_filePath = "E:\\Program Files (x86)\\Steam\\SteamApps\\common\\STAR WARS Tie Fighter\\remastered";
 			//Strings--------
 			_activeString = 1;		//start at 1
 			readStrings();
 			//TieText--------
-			FileStream fsTieText = File.Open(_filePath + "\\Resource\\TieText0.lfd", FileMode.Open, FileAccess.ReadWrite);
-			_activeTieText = 1;
-			Rmap rmpTT = new Rmap(fsTieText);
-			_tieTextOffset = rmpTT.SubHeaders[1].Offset;
-			Text TextT = new Text(fsTieText, _tieTextOffset);
-			_tieTextSubstrings = TextT.Strings[2].Split('\0');
-			readTieText();
-			fsTieText.Close();
+			loadTieText();
 			//Shipset1-------
 			FileStream fsShip = File.Open(_filePath + "\\Resource\\Shipset1.lfd", FileMode.Open, FileAccess.ReadWrite);
 			_activeShipset = 1;
@@ -153,159 +147,173 @@ namespace Idmr.TieTextEditor
 			fsStrings.Close();
 		}
 		#region Strings nav buttons
-		void cmdSPrevClick(object sender, System.EventArgs e)
+		void cmdSPrevClick(object sender, EventArgs e)
 		{		//Prev/Next are by 1
 			updateStrings();	//redetermine offsets for every string, incase of length change
 			if (_activeString != 1) _activeString--;
 			readStrings();
 		}
-		void cmdSNextClick(object sender, System.EventArgs e)
+		void cmdSNextClick(object sender, EventArgs e)
 		{
 			updateStrings();
 			if (_activeString != 695) _activeString++;
 			readStrings();
 		}		
-		void cmdSPrev2Click(object sender, System.EventArgs e)
+		void cmdSPrev2Click(object sender, EventArgs e)
 		{		//Prev2/Next2 are by 20
 			updateStrings();
 			if (_activeString <= 20) _activeString = 1; else _activeString -= 20;
 			readStrings();
 		}
-		void cmdSNext2Click(object sender, System.EventArgs e)
+		void cmdSNext2Click(object sender, EventArgs e)
 		{
 			updateStrings();
 			if (_activeString > 675) _activeString = 695; else _activeString += 20;
 			readStrings();
 		}
-		void cmdSPrev3Click(object sender, System.EventArgs e)
+		void cmdSPrev3Click(object sender, EventArgs e)
 		{		//Prev3/Next3 are by 100
 			updateStrings();
 			if (_activeString <= 100) _activeString = 1; else _activeString -= 100;
 			readStrings();
 		}
-		void cmdSNext3Click(object sender, System.EventArgs e)
+		void cmdSNext3Click(object sender, EventArgs e)
 		{
 			updateStrings();
 			if (_activeString > 595) _activeString = 695; else _activeString += 100;
 			readStrings();
 		}
 		#endregion		
+
+		void loadTieText()
+		{
+            FileStream fsTieText = File.Open(_filePath + "\\Resource\\TieText" + _currentTieTextFile + ".lfd", FileMode.Open, FileAccess.ReadWrite);
+            _activeTieText = 0;
+            Rmap rmap = new Rmap(fsTieText);
+            _tieTextOffset = rmap.SubHeaders[_currentTieTextFile == 0 ? 1 : 0].Offset;
+            _text = new Text(fsTieText, _tieTextOffset);
+            fsTieText.Close();
+            tabTieText.Text = "TieText" + _currentTieTextFile + ".lfd";
+            _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
+            readTieText();
+			cmdPrevArray.Enabled = (_currentTTArray != 0);
+			cmdNextArray.Enabled = (_currentTTArray + 1 != _text.NumberOfStrings);
+        }
 		
 		void updateTieText()
 		{
-			if (txtTieText.Text == _tieTextSubstrings[_activeTieText-1]) { return; }
-			FileStream fsTieText = File.Open(_filePath + "\\Resource\\TieText0.lfd", FileMode.Open, FileAccess.ReadWrite);
-			BinaryReader br = new BinaryReader(fsTieText);
-			BinaryWriter bw = new BinaryWriter(fsTieText);
-			int Diff = (txtTieText.Text.Length - _tieTextSubstrings[_activeTieText-1].Length);
-			long lPos;
-			Text TextT = new Text(fsTieText,_tieTextOffset);
-			lPos = TextT.Offset + TextT.Strings[0].Length + TextT.Strings[1].Length + 23 + _activeTieText;
-			for(int k=0;k<_activeTieText-1;k++) lPos += _tieTextSubstrings[k].Length;
-			if (Diff == 0)	//"express lane", if complete rewrite isn't needed
-			{
-				fsTieText.Position = lPos;			//Position to string beginning
-				bw.Write(txtTieText.Text.ToCharArray());		//write, null-term already there
-				TextT = new Text(fsTieText,_tieTextOffset);		// reads it again since properties are read-only
-				_tieTextSubstrings = TextT.Strings[2].Split('\0');
-				fsTieText.Close();
-				return;
-			}
-			DialogResult Warning;
-			Warning = MessageBox.Show("WARNING! Changing string length may prevent compatability with other patches.\nDo you wish to continue?", "WARNING",
-				MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
-			if (Warning == DialogResult.No) { return; }
-			//begin rewrite section
-			uint tDiff;
-			fsTieText.Position = 0x2C;							//length byte for tieText0
-			tDiff = br.ReadUInt32();
-			fsTieText.Position -= 4;
-			bw.Write((uint)(Diff+tDiff));
-			fsTieText.Position = _tieTextOffset + 0xC;						//location #2
-			bw.Write((uint)(Diff+tDiff));
-			fsTieText.Position = TextT.Offset + TextT.Strings[0].Length + TextT.Strings[1].Length + 0x16;	//length byte for Ships section
-			tDiff = br.ReadUInt16();
-			fsTieText.Position -= 2;
-			bw.Write((ushort)(Diff+tDiff));
-			byte[] Big = new byte[fsTieText.Length - lPos];
-			fsTieText.Position = lPos + _tieTextSubstrings[_activeTieText-1].Length+1;	// start of next substring
-			Big = br.ReadBytes(Big.Length);	// read rest of the file
-			fsTieText.Position = lPos;
-			bw.Write(txtTieText.Text.ToCharArray());
-			fsTieText.WriteByte(0);
-			bw.Write(Big);			//write the sucker in
-			fsTieText.SetLength(fsTieText.Position);
-			TextT = new Text(fsTieText,_tieTextOffset);		// reads it again since properties are read-only
-			_tieTextSubstrings = TextT.Strings[2].Split('\0');
-			fsTieText.Close();
+			if (txtTieText.Text == _tieTextSubstrings[_activeTieText]) return;
+
+			_tieTextSubstrings[_activeTieText] = txtTieText.Text;
+			string fullStr = string.Join("\0", _tieTextSubstrings);
+			_text.Strings[_currentTTArray] = fullStr;
+			_text.EncodeResource();
+			var lfd = new LfdFile(_filePath + "\\Resource\\TieText" + _currentTieTextFile + ".lfd");
+			lfd.Resources[_currentTieTextFile == 0 ? 1 : 0] = _text;
+			lfd.Write();
 		}
 		
 		void readTieText()
 		{
-			txtTieText.Text = _tieTextSubstrings[_activeTieText-1];
-			lblTPos.Text = _activeTieText + " / 84";
+			txtTieText.Text = _tieTextSubstrings[_activeTieText];
+			lblTPos.Text = (_activeTieText + 1) + " / " + _tieTextSubstrings.Length;
 		}
 		#region TieText nav buttons
-		void cmdTNextClick(object sender, System.EventArgs e)
+		void cmdTNextClick(object sender, EventArgs e)
 		{
 			updateTieText();
-			if (_activeTieText != 84) _activeTieText++;
+			if (_activeTieText < _tieTextSubstrings.Length - 1) _activeTieText++;
 			readTieText();
 		}
-		void cmdTPrevClick(object sender, System.EventArgs e)
+		void cmdTPrevClick(object sender, EventArgs e)
 		{
 			updateTieText();
-			if (_activeTieText != 1) _activeTieText--;
+			if (_activeTieText > 0) _activeTieText--;
 			readTieText();
 		}
-		void cmdTNext2Click(object sender, System.EventArgs e)
+		void cmdTNext2Click(object sender, EventArgs e)
 		{
 			updateTieText();
-			if (_activeTieText > 79) _activeTieText = 84; else _activeTieText += 5;
-			readTieText();
+			if (_activeTieText < _tieTextSubstrings.Length - 5) _activeTieText += 5;
+			else _activeTieText = _tieTextSubstrings.Length - 1;
+            readTieText();
 		}
-		void cmdPrev2Click(object sender, System.EventArgs e)
+		void cmdPrev2Click(object sender, EventArgs e)
 		{
 			updateTieText();
-			if (_activeTieText < 6) _activeTieText = 1; _activeTieText -= 5;
+			if (_activeTieText >= 5) _activeTieText -= 5;
+			else _activeTieText = 0;
 			readTieText();
 		}
-		void cmdTNext3Click(object sender, System.EventArgs e)
+		void cmdTNext3Click(object sender, EventArgs e)
 		{
 			updateTieText();
-			if (_activeTieText > 64) _activeTieText = 84; else _activeTieText += 20;
-			readTieText();
+            if (_activeTieText < _tieTextSubstrings.Length - 20) _activeTieText += 20;
+            else _activeTieText = _tieTextSubstrings.Length - 1;
+            readTieText();
 		}
-		void cmdPrev3Click(object sender, System.EventArgs e)
+		void cmdPrev3Click(object sender, EventArgs e)
 		{
 			updateTieText();
-			if (_activeTieText < 21) _activeTieText = 1; else _activeTieText -= 20;
-			readTieText();
+            if (_activeTieText >= 20) _activeTieText -= 20;
+            else _activeTieText = 0;
+            readTieText();
 		}
-		#endregion
-		
-		#region length labels
-		void txtStringTextChanged(object sender, System.EventArgs e)
+
+        void cmdTiePrev_Click(object sender, EventArgs e)
+        {
+			if (_currentTieTextFile == 0) return;
+
+			_currentTieTextFile--;
+			cmdTieNext.Enabled = true;
+			cmdTiePrev.Enabled = (_currentTieTextFile != 0);
+			if (_currentTieTextFile == 0) _currentTTArray = 2;
+			else _currentTTArray = 0;
+			loadTieText();
+        }
+        void cmdTieNext_Click(object sender, EventArgs e)
+        {
+			if (_currentTieTextFile == 3) return;
+
+			_currentTieTextFile++;
+			cmdTiePrev.Enabled = true;
+			cmdTieNext.Enabled = (_currentTieTextFile != 3);
+			_currentTTArray = 0;
+			loadTieText();
+        }
+
+        void cmdPrevArray_Click(object sender, EventArgs e)
+        {
+			if (_currentTTArray == 0) return;
+			_currentTTArray--;
+            _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
+			_activeTieText = 0;
+            readTieText();
+			cmdPrevArray.Enabled = (_currentTTArray != 0);
+			cmdNextArray.Enabled = true;
+        }
+        void cmdNextArray_Click(object sender, EventArgs e)
+        {
+			if (_currentTTArray + 1 == _text.NumberOfStrings) return;
+			_currentTTArray++;
+            _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
+			_activeTieText = 0;
+            readTieText();
+            cmdPrevArray.Enabled = true;
+            cmdNextArray.Enabled = (_currentTTArray + 1 != _text.NumberOfStrings);
+        }
+        #endregion
+
+        #region length labels
+        void txtStringTextChanged(object sender, EventArgs e)
 		{
 			lblSCount.Text = (txtString.Text.Length - _stringsOriginal.Length).ToString();
 		}
-		void txtTieTextTextChanged(object sender, System.EventArgs e)
+		void txtTieTextTextChanged(object sender, EventArgs e)
 		{
-			lblTCount.Text = (txtTieText.Text.Length - _tieTextSubstrings[_activeTieText-1].Length).ToString();
+			lblTCount.Text = (txtTieText.Text.Length - _tieTextSubstrings[_activeTieText].Length).ToString();
 		}
-		void txtNameTextChanged(object sender, System.EventArgs e)
-		{
-			int Count;
-			Count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length + 
-				txtLine3.Text.Length + txtLine4.Text.Length + txtLine5.Text.Length + txtLine6.Text.Length - _shipsetStrings[_activeShipset-1].Length + 4;
-			if (txtLine2.Text != "") Count++;
-			if (txtLine3.Text != "") Count++;
-			if (txtLine4.Text != "") Count++;
-			if (txtLine5.Text != "") Count++;
-			if (txtLine6.Text != "") Count++;
-			lblShCount.Text = Count.ToString();
-		}
-		void txtOPTTextChanged(object sender, System.EventArgs e)
+		void txtNameTextChanged(object sender, EventArgs e)
 		{
 			int Count;
 			Count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length + 
@@ -317,7 +325,7 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void txtLine1TextChanged(object sender, System.EventArgs e)
+		void txtOPTTextChanged(object sender, EventArgs e)
 		{
 			int Count;
 			Count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length + 
@@ -329,7 +337,19 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void txtLine2TextChanged(object sender, System.EventArgs e)
+		void txtLine1TextChanged(object sender, EventArgs e)
+		{
+			int Count;
+			Count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length + 
+				txtLine3.Text.Length + txtLine4.Text.Length + txtLine5.Text.Length + txtLine6.Text.Length - _shipsetStrings[_activeShipset-1].Length + 4;
+			if (txtLine2.Text != "") Count++;
+			if (txtLine3.Text != "") Count++;
+			if (txtLine4.Text != "") Count++;
+			if (txtLine5.Text != "") Count++;
+			if (txtLine6.Text != "") Count++;
+			lblShCount.Text = Count.ToString();
+		}
+		void txtLine2TextChanged(object sender, EventArgs e)
 		{
 			if (txtLine2.Text != "") txtLine3.Enabled = true; else txtLine3.Enabled = false;
 			int Count;
@@ -342,7 +362,7 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void txtLine3TextChanged(object sender, System.EventArgs e)
+		void txtLine3TextChanged(object sender, EventArgs e)
 		{
 			if (txtLine3.Text != "") txtLine4.Enabled = true; else txtLine4.Enabled = false;
 			int Count;
@@ -355,7 +375,7 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void txtLine4TextChanged(object sender, System.EventArgs e)
+		void txtLine4TextChanged(object sender, EventArgs e)
 		{
 			if (txtLine4.Text != "") txtLine5.Enabled = true; else txtLine5.Enabled = false;
 			int Count;
@@ -368,7 +388,7 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void txtLine5TextChanged(object sender, System.EventArgs e)
+		void txtLine5TextChanged(object sender, EventArgs e)
 		{
 			if (txtLine5.Text != "") txtLine6.Enabled = true; else txtLine6.Enabled = false;
 			int Count;
@@ -381,7 +401,7 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void txtLine6TextChanged(object sender, System.EventArgs e)
+		void txtLine6TextChanged(object sender, EventArgs e)
 		{
 			int Count;
 			Count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length + 
@@ -393,17 +413,17 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void lblShCountTextChanged(object sender, System.EventArgs e)
+		void lblShCountTextChanged(object sender, EventArgs e)
 		{
 			if(lblShCount.Text == "0") lblShCount.ForeColor = System.Drawing.Color.Lime;
 			else lblShCount.ForeColor = System.Drawing.Color.Red;
 		}
-		void lblSCountTextChanged(object sender, System.EventArgs e)
+		void lblSCountTextChanged(object sender, EventArgs e)
 		{
 			if(lblSCount.Text == "0") lblSCount.ForeColor = System.Drawing.Color.Lime;
 			else lblSCount.ForeColor = System.Drawing.Color.Red;
 		}
-		void lblTCountTextChanged(object sender, System.EventArgs e)
+		void lblTCountTextChanged(object sender, EventArgs e)
 		{
 			if(lblTCount.Text == "0") lblTCount.ForeColor = System.Drawing.Color.Lime;
 			else lblTCount.ForeColor = System.Drawing.Color.Red;
@@ -557,43 +577,43 @@ namespace Idmr.TieTextEditor
 			lblShPos.Text = _activeShipset.ToString() + " / " + _shipsetStrings.Length.ToString();
 		}
 		#region Shipset buttons
-		void cmdShNextClick(object sender, System.EventArgs e)
+		void cmdShNextClick(object sender, EventArgs e)
 		{
 			updateShipset();
 			if (_activeShipset != _shipsetStrings.Length) _activeShipset++;
 			readShipset();
 		}
-		void cmdShPrevClick(object sender, System.EventArgs e)
+		void cmdShPrevClick(object sender, EventArgs e)
 		{
 			updateShipset();
 			if (_activeShipset != 1) _activeShipset--;
 			readShipset();
 		}
-		void cmdShNext2Click(object sender, System.EventArgs e)
+		void cmdShNext2Click(object sender, EventArgs e)
 		{
 			updateShipset();
 			if (_activeShipset > (_shipsetStrings.Length - 5)) _activeShipset = _shipsetStrings.Length; else _activeShipset += 5;
 			readShipset();
 		}
-		void cmdShPrev2Click(object sender, System.EventArgs e)
+		void cmdShPrev2Click(object sender, EventArgs e)
 		{
 			updateShipset();
 			if (_activeShipset < 6) _activeShipset = 1; else _activeShipset -= 5;
 			readShipset();
 		}
-		void cmdShNext3Click(object sender, System.EventArgs e)
+		void cmdShNext3Click(object sender, EventArgs e)
 		{
 			updateShipset();
 			if (_activeShipset > (_shipsetStrings.Length-10)) _activeShipset = _shipsetStrings.Length; else _activeShipset += 10;
 			readShipset();
 		}
-		void cmdShPrev3Click(object sender, System.EventArgs e)
+		void cmdShPrev3Click(object sender, EventArgs e)
 		{
 			updateShipset();
 			if (_activeShipset < 11) _activeShipset = 1; else _activeShipset -= 10;
 			readShipset();
 		}
-		void cmdFileNextClick(object sender, System.EventArgs e)
+		void cmdFileNextClick(object sender, EventArgs e)
 		{
 			//Shipset2
 			updateShipset();
@@ -607,7 +627,7 @@ namespace Idmr.TieTextEditor
 			cmdFilePrev.Enabled = true;
 			tabShipset.Text = "Shipset2.lfd";
 		}
-		void cmdFilePrevClick(object sender, System.EventArgs e)
+		void cmdFilePrevClick(object sender, EventArgs e)
 		{
 			//Shipset1
 			updateShipset();
@@ -621,14 +641,14 @@ namespace Idmr.TieTextEditor
 			cmdFilePrev.Enabled = false;
 			tabShipset.Text = "Shipset1.lfd";
 		}
-		void cmdNewClick(object sender, System.EventArgs e)
+		void cmdNewClick(object sender, EventArgs e)
 		{
 			// TODO: allow inserting new entries
 		}
-		void cmdDelClick(object sender, System.EventArgs e)
+		void cmdDelClick(object sender, EventArgs e)
 		{
 			// TODO: allow deleting entries
 		}
-		#endregion
-	}
+        #endregion
+    }
 }

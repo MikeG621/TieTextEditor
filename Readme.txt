@@ -22,6 +22,8 @@ every time.
 ==========
 Version History
 
+- Added support for TieText1 through 3
+
 v1.2, 24 Aug 2022
 - Converted from legacy code to modern project style
 - Renamed to Tie Text Editor
