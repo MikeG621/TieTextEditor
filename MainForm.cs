@@ -93,37 +93,34 @@ namespace Idmr.TieTextEditor
 			readShipset();
 		}
 
-		void updateStrings()	//writes new string to file, and updates file if neccessary
+		void updateStrings()    //writes new string to file, and updates file if neccessary
 		{
-			if (txtString.Text == _stringsOriginal) return;	//ignore if no changes
-			FileStream fsStrings = File.Open(_filePath + "\\STRINGS.DAT", FileMode.Open, FileAccess.ReadWrite);
+			if (txtString.Text == _stringsOriginal) return; //ignore if no changes
+
+            //begin rewrite section
+            FileStream fsStrings = File.Open(_filePath + "\\STRINGS.DAT", FileMode.Open, FileAccess.ReadWrite);
 			BinaryReader br = new BinaryReader(fsStrings);
 			BinaryWriter bw = new BinaryWriter(fsStrings);
-			uint Diff = (uint)(txtString.Text.Length - _stringsOriginal.Length);	//begin rewrite section
-			int SROffset = (_activeString - 1) * 4;		//SRecord offset
-			fsStrings.Position = SROffset;
-			uint SOff = br.ReadUInt32();		//String offset
-			if (Diff == 0)	//"express lane", if complete rewrite isn't needed
+			fsStrings.Position = (_activeString - 1) * 4;
+			uint offset = br.ReadUInt32();        //String offset
+            int diff = txtString.Text.Length - _stringsOriginal.Length;
+            if (diff == 0)  //"express lane", if complete rewrite isn't needed
 			{
-				fsStrings.Position = SOff;			//Position to string beginning
-				bw.Write(txtString.Text.ToCharArray());	// null-term already there
+				fsStrings.Position = offset;          //Position to string beginning
+				bw.Write(txtString.Text.ToCharArray()); // null-term already there
 				fsStrings.Close();
 				return;
 			}
-			DialogResult Warning;
-			Warning = MessageBox.Show("WARNING! Changing string length may prevent compatability with other patches.\nDo you wish to continue?",
-						"WARNING", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
-			if (Warning == DialogResult.No) { fsStrings.Close(); return; }
 			for(;fsStrings.Position<0xadc;)		// update offsets
 			{
-				uint off = br.ReadUInt32() + Diff;
+				int off = br.ReadInt32() + diff;
 				fsStrings.Position -= 4;	// go back
 				bw.Write(off);
 			}
-			fsStrings.Position = SOff + _stringsOriginal.Length + 1;	// Position to next string
+			fsStrings.Position = offset + _stringsOriginal.Length + 1;	// Position to next string
 			byte[] Big = new byte[fsStrings.Length - fsStrings.Position];
 			Big = br.ReadBytes(Big.Length);	// read rest of the file
-			fsStrings.Position = SOff;
+			fsStrings.Position = offset;
 			bw.Write(txtString.Text.ToCharArray());	// write the string
 			fsStrings.WriteByte(0);
 			bw.Write(Big);	// write the rest of the file
@@ -432,6 +429,7 @@ namespace Idmr.TieTextEditor
 		
 		void updateShipset()
 		{
+			//TODO: overhaul
 			string[] substrings = _shipsetStrings[_activeShipset-1].Split('\0');
 			bool lines = true;
 			if (substrings.Length > 2 && txtLine1.Text != substrings[2]) lines = false;
@@ -499,10 +497,7 @@ namespace Idmr.TieTextEditor
 				return;
 			}
 			#endregion
-			DialogResult Warning;
-			Warning = MessageBox.Show("WARNING! Changing string length may prevent compatability with other patches.\nDo you wish to continue?", "WARNING",
-				MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
-			if (Warning == DialogResult.No) { return; }
+
 			//thus begins the longest rewrite section...
 			uint Diff2 = (uint)Diff;
 			stream.Position = Resource.HeaderLength + Resource.LengthOffset;
