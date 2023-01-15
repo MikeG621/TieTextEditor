@@ -47,6 +47,7 @@ namespace Idmr.TieTextEditor
 		string[] _shipsetStrings;
         // other
         readonly string _filePath;
+        readonly int _titleOriginalLength;
 
 		public MainForm()
 		{
@@ -85,13 +86,16 @@ namespace Idmr.TieTextEditor
 			//TieText--------
 			loadTieText();
 			//Shipset1-------
-			FileStream fsShip = File.Open(_filePath + "\\Resource\\Shipset1.lfd", FileMode.Open, FileAccess.ReadWrite);
 			_activeShipset = 1;
-			Text texSh = new Text(fsShip, Resource.HeaderLength * 2);		// only resource in RMAP, no need to check
-			fsShip.Close();
+			Text texSh = new Text(_filePath + "\\Resource\\Shipset1.lfd", Resource.HeaderLength * 2);		// only resource in RMAP, no need to check
 			_shipsetStrings = texSh.Strings;
 			readShipset();
-		}
+			//Title----------
+			var title = new LfdFile(_filePath + "\\Resource\\Title.lfd");
+            Text text = (Text)title.Resources[5];
+			_titleOriginalLength = text.Strings[0].Length;
+            txtTitle.Text = text.Strings[0].Replace("\n", "\r\n").Replace("\0", "\r\n");
+        }
 
 		void updateStrings()    //writes new string to file, and updates file if neccessary
 		{
@@ -410,24 +414,19 @@ namespace Idmr.TieTextEditor
 			if (txtLine6.Text != "") Count++;
 			lblShCount.Text = Count.ToString();
 		}
-		void lblShCountTextChanged(object sender, EventArgs e)
-		{
-			if(lblShCount.Text == "0") lblShCount.ForeColor = System.Drawing.Color.Lime;
-			else lblShCount.ForeColor = System.Drawing.Color.Red;
-		}
-		void lblSCountTextChanged(object sender, EventArgs e)
-		{
-			if(lblSCount.Text == "0") lblSCount.ForeColor = System.Drawing.Color.Lime;
-			else lblSCount.ForeColor = System.Drawing.Color.Red;
-		}
-		void lblTCountTextChanged(object sender, EventArgs e)
-		{
-			if(lblTCount.Text == "0") lblTCount.ForeColor = System.Drawing.Color.Lime;
-			else lblTCount.ForeColor = System.Drawing.Color.Red;
-		}
-		#endregion
-		
-		void updateShipset()
+        void txtTitle_TextChanged(object sender, EventArgs e)
+        {
+			lblTitleCount.Text = (txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0\0", "\0\n\0").Length - _titleOriginalLength).ToString();
+        }
+        void lblCount_TextChanged(object sender, EventArgs e)
+        {
+			var lbl = (Label)sender;
+            if (lbl.Text == "0") lbl.ForeColor = System.Drawing.Color.Lime;
+            else lbl.ForeColor = System.Drawing.Color.Red;
+        }
+        #endregion
+
+        void updateShipset()
 		{
 			//TODO: overhaul
 			string[] substrings = _shipsetStrings[_activeShipset-1].Split('\0');
@@ -610,12 +609,9 @@ namespace Idmr.TieTextEditor
 		}
 		void cmdFileNextClick(object sender, EventArgs e)
 		{
-			//Shipset2
 			updateShipset();
-			FileStream fsShip = File.Open(_filePath + "\\Resource\\Shipset2.lfd", FileMode.Open, FileAccess.ReadWrite);
 			_activeShipset = 1;
-			Text texSh = new Text(fsShip,0x20);
-			fsShip.Close();
+			Text texSh = new Text(_filePath + "\\Resource\\Shipset2.lfd", Resource.HeaderLength * 2);
 			_shipsetStrings = texSh.Strings;
 			readShipset();
 			cmdFileNext.Enabled = false;
@@ -624,12 +620,9 @@ namespace Idmr.TieTextEditor
 		}
 		void cmdFilePrevClick(object sender, EventArgs e)
 		{
-			//Shipset1
 			updateShipset();
-			FileStream fsShip = File.Open(_filePath + "\\Resource\\Shipset1.lfd", FileMode.Open, FileAccess.ReadWrite);
 			_activeShipset = 1;
-			Text texSh = new Text(fsShip,0x20);
-			fsShip.Close();
+			Text texSh = new Text(_filePath + "\\Resource\\Shipset1.lfd", Resource.HeaderLength * 2);
 			_shipsetStrings = texSh.Strings;
 			readShipset();
 			cmdFileNext.Enabled = true;
@@ -645,5 +638,14 @@ namespace Idmr.TieTextEditor
 			// TODO: allow deleting entries
 		}
         #endregion
+
+		void cmdSaveTitle_Click(object sender, EventArgs e)
+        {
+            var title = new LfdFile(_filePath + "\\Resource\\Title.lfd");
+            Text text = (Text)title.Resources[5];
+			text.Strings[0] = txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0\0", "\0\n\0");
+			text.EncodeResource();
+			title.Write();
+        }
     }
 }

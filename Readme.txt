@@ -22,7 +22,7 @@ every time.
 ==========
 Version History
 
-- Added support for TieText1 through 3
+- Added support for TieText1 through 3, Title [#1]
 
 v1.2, 24 Aug 2022
 - Converted from legacy code to modern project style
