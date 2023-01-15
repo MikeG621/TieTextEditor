@@ -44,13 +44,11 @@ namespace Idmr.TieTextEditor
             this.cmdTNext3 = new System.Windows.Forms.Button();
             this.cmdTNext2 = new System.Windows.Forms.Button();
             this.lblSPos = new System.Windows.Forms.Label();
-            this.cmdDel = new System.Windows.Forms.Button();
             this.lblTCount = new System.Windows.Forms.Label();
             this.lblShCount = new System.Windows.Forms.Label();
             this.cmdSPrev2 = new System.Windows.Forms.Button();
             this.lblTPos = new System.Windows.Forms.Label();
             this.tabShipset = new System.Windows.Forms.TabPage();
-            this.cmdNew = new System.Windows.Forms.Button();
             this.cmdFilePrev = new System.Windows.Forms.Button();
             this.cmdShNext = new System.Windows.Forms.Button();
             this.cmdShNext2 = new System.Windows.Forms.Button();
@@ -75,12 +73,12 @@ namespace Idmr.TieTextEditor
             this.cmdSPrev3 = new System.Windows.Forms.Button();
             this.tabStrings = new System.Windows.Forms.TabPage();
             this.tabMaster = new System.Windows.Forms.TabControl();
-            this.fldTie = new System.Windows.Forms.FolderBrowserDialog();
             this.tabTitle = new System.Windows.Forms.TabPage();
-            this.txtTitle = new System.Windows.Forms.TextBox();
-            this.lblTitleCount = new System.Windows.Forms.Label();
-            this.cmdSaveTitle = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.cmdSaveTitle = new System.Windows.Forms.Button();
+            this.lblTitleCount = new System.Windows.Forms.Label();
+            this.txtTitle = new System.Windows.Forms.TextBox();
+            this.fldTie = new System.Windows.Forms.FolderBrowserDialog();
             this.tabShipset.SuspendLayout();
             this.tabTieText.SuspendLayout();
             this.tabStrings.SuspendLayout();
@@ -94,7 +92,7 @@ namespace Idmr.TieTextEditor
             this.txtLine4.Name = "txtLine4";
             this.txtLine4.Size = new System.Drawing.Size(192, 20);
             this.txtLine4.TabIndex = 3;
-            this.txtLine4.TextChanged += new System.EventHandler(this.txtLine4TextChanged);
+            this.txtLine4.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // txtLine5
             // 
@@ -102,16 +100,15 @@ namespace Idmr.TieTextEditor
             this.txtLine5.Name = "txtLine5";
             this.txtLine5.Size = new System.Drawing.Size(192, 20);
             this.txtLine5.TabIndex = 19;
-            this.txtLine5.TextChanged += new System.EventHandler(this.txtLine5TextChanged);
+            this.txtLine5.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // txtLine6
             // 
-            this.txtLine6.Enabled = false;
             this.txtLine6.Location = new System.Drawing.Point(216, 80);
             this.txtLine6.Name = "txtLine6";
             this.txtLine6.Size = new System.Drawing.Size(192, 20);
             this.txtLine6.TabIndex = 20;
-            this.txtLine6.TextChanged += new System.EventHandler(this.txtLine6TextChanged);
+            this.txtLine6.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // txtLine1
             // 
@@ -119,7 +116,7 @@ namespace Idmr.TieTextEditor
             this.txtLine1.Name = "txtLine1";
             this.txtLine1.Size = new System.Drawing.Size(192, 20);
             this.txtLine1.TabIndex = 1;
-            this.txtLine1.TextChanged += new System.EventHandler(this.txtLine1TextChanged);
+            this.txtLine1.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // txtLine2
             // 
@@ -127,7 +124,7 @@ namespace Idmr.TieTextEditor
             this.txtLine2.Name = "txtLine2";
             this.txtLine2.Size = new System.Drawing.Size(192, 20);
             this.txtLine2.TabIndex = 5;
-            this.txtLine2.TextChanged += new System.EventHandler(this.txtLine2TextChanged);
+            this.txtLine2.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // txtLine3
             // 
@@ -135,7 +132,7 @@ namespace Idmr.TieTextEditor
             this.txtLine3.Name = "txtLine3";
             this.txtLine3.Size = new System.Drawing.Size(192, 20);
             this.txtLine3.TabIndex = 2;
-            this.txtLine3.TextChanged += new System.EventHandler(this.txtLine3TextChanged);
+            this.txtLine3.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // cmdSPrev
             // 
@@ -152,7 +149,7 @@ namespace Idmr.TieTextEditor
             this.txtOPT.Name = "txtOPT";
             this.txtOPT.Size = new System.Drawing.Size(96, 20);
             this.txtOPT.TabIndex = 4;
-            this.txtOPT.TextChanged += new System.EventHandler(this.txtOPTTextChanged);
+            this.txtOPT.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // cmdSNext
             // 
@@ -187,7 +184,7 @@ namespace Idmr.TieTextEditor
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(240, 20);
             this.txtName.TabIndex = 0;
-            this.txtName.TextChanged += new System.EventHandler(this.txtNameTextChanged);
+            this.txtName.TextChanged += new System.EventHandler(this.txtShipset_TextChanged);
             // 
             // cmdTNext3
             // 
@@ -216,16 +213,6 @@ namespace Idmr.TieTextEditor
             this.lblSPos.TabIndex = 0;
             this.lblSPos.Text = "1 / 695";
             this.lblSPos.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // cmdDel
-            // 
-            this.cmdDel.Enabled = false;
-            this.cmdDel.Location = new System.Drawing.Point(88, 128);
-            this.cmdDel.Name = "cmdDel";
-            this.cmdDel.Size = new System.Drawing.Size(48, 24);
-            this.cmdDel.TabIndex = 17;
-            this.cmdDel.Text = "Delete";
-            this.cmdDel.Click += new System.EventHandler(this.cmdDelClick);
             // 
             // lblTCount
             // 
@@ -273,8 +260,6 @@ namespace Idmr.TieTextEditor
             this.tabShipset.Controls.Add(this.txtLine6);
             this.tabShipset.Controls.Add(this.txtLine5);
             this.tabShipset.Controls.Add(this.lblShCount);
-            this.tabShipset.Controls.Add(this.cmdDel);
-            this.tabShipset.Controls.Add(this.cmdNew);
             this.tabShipset.Controls.Add(this.cmdFilePrev);
             this.tabShipset.Controls.Add(this.cmdFileNext);
             this.tabShipset.Controls.Add(this.lblShPos);
@@ -295,16 +280,6 @@ namespace Idmr.TieTextEditor
             this.tabShipset.Size = new System.Drawing.Size(416, 158);
             this.tabShipset.TabIndex = 2;
             this.tabShipset.Text = "Shipset1.lfd";
-            // 
-            // cmdNew
-            // 
-            this.cmdNew.Enabled = false;
-            this.cmdNew.Location = new System.Drawing.Point(304, 128);
-            this.cmdNew.Name = "cmdNew";
-            this.cmdNew.Size = new System.Drawing.Size(48, 24);
-            this.cmdNew.TabIndex = 16;
-            this.cmdNew.Text = "New";
-            this.cmdNew.Click += new System.EventHandler(this.cmdNewClick);
             // 
             // cmdFilePrev
             // 
@@ -549,10 +524,6 @@ namespace Idmr.TieTextEditor
             this.tabMaster.Size = new System.Drawing.Size(424, 184);
             this.tabMaster.TabIndex = 0;
             // 
-            // fldTie
-            // 
-            this.fldTie.Description = "Select the TIE program directory";
-            // 
             // tabTitle
             // 
             this.tabTitle.BackColor = System.Drawing.SystemColors.Control;
@@ -566,15 +537,24 @@ namespace Idmr.TieTextEditor
             this.tabTitle.TabIndex = 3;
             this.tabTitle.Text = "Title.lfd";
             // 
-            // txtTitle
+            // label1
             // 
-            this.txtTitle.Location = new System.Drawing.Point(59, 3);
-            this.txtTitle.Multiline = true;
-            this.txtTitle.Name = "txtTitle";
-            this.txtTitle.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtTitle.Size = new System.Drawing.Size(191, 105);
-            this.txtTitle.TabIndex = 0;
-            this.txtTitle.TextChanged += new System.EventHandler(this.txtTitle_TextChanged);
+            this.label1.Location = new System.Drawing.Point(256, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(152, 89);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "Must use manual line breaks.\r\nWidth of text box is approximate limit.\r\nMust hit \"" +
+    "Save\" to keep changes.";
+            // 
+            // cmdSaveTitle
+            // 
+            this.cmdSaveTitle.Location = new System.Drawing.Point(330, 127);
+            this.cmdSaveTitle.Name = "cmdSaveTitle";
+            this.cmdSaveTitle.Size = new System.Drawing.Size(75, 23);
+            this.cmdSaveTitle.TabIndex = 12;
+            this.cmdSaveTitle.Text = "&Save";
+            this.cmdSaveTitle.UseVisualStyleBackColor = true;
+            this.cmdSaveTitle.Click += new System.EventHandler(this.cmdSaveTitle_Click);
             // 
             // lblTitleCount
             // 
@@ -587,24 +567,19 @@ namespace Idmr.TieTextEditor
             this.lblTitleCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblTitleCount.TextChanged += new System.EventHandler(this.lblCount_TextChanged);
             // 
-            // cmdSaveTitle
+            // txtTitle
             // 
-            this.cmdSaveTitle.Location = new System.Drawing.Point(330, 127);
-            this.cmdSaveTitle.Name = "cmdSaveTitle";
-            this.cmdSaveTitle.Size = new System.Drawing.Size(75, 23);
-            this.cmdSaveTitle.TabIndex = 12;
-            this.cmdSaveTitle.Text = "&Save";
-            this.cmdSaveTitle.UseVisualStyleBackColor = true;
-            this.cmdSaveTitle.Click += new System.EventHandler(this.cmdSaveTitle_Click);
+            this.txtTitle.Location = new System.Drawing.Point(59, 3);
+            this.txtTitle.Multiline = true;
+            this.txtTitle.Name = "txtTitle";
+            this.txtTitle.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtTitle.Size = new System.Drawing.Size(191, 105);
+            this.txtTitle.TabIndex = 0;
+            this.txtTitle.TextChanged += new System.EventHandler(this.txtTitle_TextChanged);
             // 
-            // label1
+            // fldTie
             // 
-            this.label1.Location = new System.Drawing.Point(256, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(152, 89);
-            this.label1.TabIndex = 13;
-            this.label1.Text = "Must use manual line breaks.\r\nWidth of text box is approximate limit.\r\nMust hit \"" +
-    "Save\" to keep changes.";
+            this.fldTie.Description = "Select the TIE program directory";
             // 
             // MainForm
             // 
@@ -640,7 +615,6 @@ namespace Idmr.TieTextEditor
 		private System.Windows.Forms.Button cmdShNext2;
 		private System.Windows.Forms.Button cmdTNext;
 		private System.Windows.Forms.Button cmdFilePrev;
-		private System.Windows.Forms.Button cmdNew;
 		private System.Windows.Forms.Button cmdTPrev;
 		private System.Windows.Forms.Button cmdSPrev3;
 		private System.Windows.Forms.Button cmdShNext;
@@ -657,7 +631,6 @@ namespace Idmr.TieTextEditor
 		private System.Windows.Forms.Button cmdSPrev2;
 		private System.Windows.Forms.Label lblShCount;
 		private System.Windows.Forms.Label lblTCount;
-		private System.Windows.Forms.Button cmdDel;
 		private System.Windows.Forms.Label lblSPos;
 		private System.Windows.Forms.Button cmdTNext2;
 		private System.Windows.Forms.Button cmdTNext3;
