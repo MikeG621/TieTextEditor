@@ -2,8 +2,8 @@
 ======================================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 1.2
-Date: 2022.07.30
+Version: 1.3
+Date: 2023.01.20
 
 This utility enables the editing of strings for TIE95. Good for changing craft
 names, tech room info, other strings in the game.
@@ -22,7 +22,10 @@ every time.
 ==========
 Version History
 
+v1.3, 20 Jan 2033
 - Added support for TieText1 through 3, Title [#1]
+- Rewrote to fully use LfdReader
+- Various code cleanups
 
 v1.2, 24 Aug 2022
 - Converted from legacy code to modern project style

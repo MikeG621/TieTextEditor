@@ -1,6 +1,6 @@
 /*
  * TieTextEditor.exe, Allows the editing of TEXT resources and STRINGS.DAT from TIE
- * Copyright (C) 2006-2022 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2006-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  */
 
@@ -16,12 +16,14 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Imperial Department of Military Research")]
 [assembly: AssemblyProduct("TTE")]
-[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2006-2022")]
+[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2006-2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
 
-[assembly: AssemblyVersion("1.2.*")]
+[assembly: AssemblyVersion("1.3.0.*")]
+[assembly: AssemblyFileVersion("1.3.0.0")]
+[assembly: AssemblyInformationalVersion("1.3 final")]
 
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]

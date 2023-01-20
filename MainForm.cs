@@ -3,10 +3,13 @@
  * Copyright (C) 2006-2023 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
- * VERSION: 1.2+
+ * VERSION: 1.3
  */
 
 /* CHANGELOG
+ * v1.3, 230120
+ * [NEW] Added TieText 1 thru 3, Title.lfd
+ * [UPD] Rewrote to fully use LfdReader
  * v1.2, 220824
  * [UPD] Updated from legacy
  */
@@ -218,7 +221,7 @@ namespace Idmr.TieTextEditor
 			if (txtTieText.Text == _tieTextSubstrings[_activeTieText]) return;
 
 			_tieTextSubstrings[_activeTieText] = txtTieText.Text;
-			string fullStr = string.Join("\0", _tieTextSubstrings) + "\0\0";
+			string fullStr = string.Join("\0", _tieTextSubstrings);
 			_text.Strings[_currentTTArray] = fullStr;
 			_text.EncodeResource();
 			var lfd = new LfdFile(_filePath + "\\Resource\\TieText" + _currentTieTextFile + ".lfd");
@@ -332,7 +335,7 @@ namespace Idmr.TieTextEditor
         {
             int count;
             count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length +
-                txtLine3.Text.Length + txtLine4.Text.Length + txtLine5.Text.Length + txtLine6.Text.Length - ((Text)_shipset.Resources[0]).Strings[_activeShipset].Length + 2;
+                txtLine3.Text.Length + txtLine4.Text.Length + txtLine5.Text.Length + txtLine6.Text.Length - ((Text)_shipset.Resources[0]).Strings[_activeShipset].TrimEnd('\0').Length + 2;
 			for (int i = 1; i < 6; i++) if (_shipsetTextBoxes[i].Text != "") count++;
             lblShCount.Text = count.ToString();
         }
@@ -352,9 +355,10 @@ namespace Idmr.TieTextEditor
 		{
             var text = (Text)_shipset.Resources[0];
             string[] substrings = text.Strings[_activeShipset].Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
-            bool lines = true;
-			for (int i = 0; i < 6; i++) if (substrings.Length > i + 2 && _shipsetTextBoxes[i].Text != substrings[i + 2]) lines = false;
-			if (txtName.Text == substrings[0] && txtOPT.Text == substrings[1] && lines) return;
+            bool linesUnmodified = true;
+			for (int i = 0; i < 6; i++) if (substrings.Length > i + 2 && _shipsetTextBoxes[i].Text != substrings[i + 2]) linesUnmodified = false;	//check existing
+			for (int i = substrings.Length - 2; i < 6; i++) if (_shipsetTextBoxes[i].Text != "") linesUnmodified = false;	// check for adds
+			if (txtName.Text == substrings[0] && txtOPT.Text == substrings[1] && linesUnmodified) return;
 
             List<string> usedStrings = new List<string>
             {
@@ -363,7 +367,7 @@ namespace Idmr.TieTextEditor
             };
             for (int i = 0; i < 6; i++)
 				if (_shipsetTextBoxes[i].Text != "") usedStrings.Add(_shipsetTextBoxes[i].Text);
-			text.Strings[_activeShipset] = string.Join("\0", usedStrings.ToArray()) + "\0";
+			text.Strings[_activeShipset] = string.Join("\0", usedStrings.ToArray());
 			text.EncodeResource();
 			_shipset.Write();
 		}
@@ -453,11 +457,12 @@ namespace Idmr.TieTextEditor
         {
             var title = new LfdFile(_filePath + "\\Resource\\Title.lfd");
             Text text = (Text)title.Resources[5];
-			text.Strings[0] = txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0\0", "\0\n\0") + "\0\0";
+			text.Strings[0] = txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0\0", "\0\n\0");
 			text.EncodeResource();
 			title.Write();
-			_titleOriginal = text.Strings[0];
+			_titleOriginal = text.Strings[0].TrimEnd('\0');
 			_titleOriginalLength = _titleOriginal.Length;
+			txtTitle_TextChanged("Save", new EventArgs());
         }
     }
 }
