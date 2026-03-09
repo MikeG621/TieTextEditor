@@ -1,12 +1,13 @@
 /*
  * TieTextEditor.exe, Allows the editing of TEXT resources and STRINGS.DAT from TIE
- * Copyright (C) 2006-2023 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2006-2026 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
- * VERSION: 1.3
+ * VERSION: 1.3+
  */
 
 /* CHANGELOG
+ * [FIX #2] STRINGS Save button, R/W overhaul, special chars
  * v1.3, 230120
  * [NEW] Added TieText 1 thru 3, Title.lfd
  * [UPD] Rewrote to fully use LfdReader
