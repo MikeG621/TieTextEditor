@@ -39,6 +39,8 @@ namespace Idmr.TieTextEditor
 		// Strings
 		int _activeString;
 		string _stringsOriginal;
+		readonly string[] _strings = new string[695];
+		readonly string _strFile;
 		// TieText
 		int _currentTieTextFile;
 		int _activeTieText;
@@ -87,6 +89,8 @@ namespace Idmr.TieTextEditor
 			}
 
 			//Strings--------
+			_strFile = "C:\\Users\\Me\\Downloads\\strings\\it_STRINGS.DAT";
+			//_strFile = _filePath + "\\STRINGS.DAT";
 			readStrings();
 			//TieText--------
 			loadTieText();
@@ -108,97 +112,115 @@ namespace Idmr.TieTextEditor
             txtTitle.Text = text.Strings[0].Replace("\n", "\r\n").Replace("\0", "\r\n");
         }
 
-		void updateStrings()    //writes new string to file, and updates file if neccessary
-		{
-			if (txtString.Text == _stringsOriginal) return; //ignore if no changes
-
-			using (FileStream fs = File.Open(_filePath + "\\STRINGS.DAT", FileMode.Open, FileAccess.ReadWrite))
-			{
-				BinaryReader br = new BinaryReader(fs);
-				BinaryWriter bw = new BinaryWriter(fs);
-				fs.Position = _activeString * 4;
-				uint offset = br.ReadUInt32();
-				int diff = txtString.Text.Length - _stringsOriginal.Length;
-				if (diff == 0)  //"express lane", if complete rewrite isn't needed
-				{
-					fs.Position = offset;
-					bw.Write(txtString.Text.ToCharArray()); // null-term already there
-					fs.Close();
-					return;
-				}
-				for (; fs.Position < 0xadc;)     // update offsets
-				{
-					int off = br.ReadInt32() + diff;
-					fs.Position -= 4;    // go back
-					bw.Write(off);
-				}
-				fs.Position = offset + _stringsOriginal.Length + 1;  // Position to next string
-				byte[] big = new byte[fs.Length - fs.Position];
-				big = br.ReadBytes(big.Length); // read rest of the file
-				fs.Position = offset;
-				bw.Write(txtString.Text.ToCharArray()); // write the string
-				fs.WriteByte(0);
-				bw.Write(big);  // write the rest of the file
-				fs.SetLength(fs.Position);
-			}
-		}
-		
+		#region Strings
 		void readStrings()
 		{
-			using (FileStream fs = File.Open(_filePath + "\\STRINGS.DAT", FileMode.Open, FileAccess.ReadWrite))
+			using (FileStream fs = File.OpenRead(_strFile))
 			{
 				using (BinaryReader br = new BinaryReader(fs))
 				{
-					fs.Position = _activeString * 4;     //Position to previous offset declaration
-					int SPos = br.ReadInt32();
-					int len;
-					if (_activeString != 694) len = (int)(br.ReadUInt32() - SPos - 1);
-					else len = (int)(fs.Length - SPos - 1);
-					fs.Position = SPos;
-					_stringsOriginal = new string(br.ReadChars(len));
-					lblSPos.Text = (_activeString + 1) + " / 695";      //Update position label
-					txtString.Text = _stringsOriginal;                  //Update Text box
+					for (int i = 0; i < _strings.Length; i++)
+					{
+						fs.Position = i * 4;
+						int pos = br.ReadInt32();
+						fs.Position = pos;
+						int len = 0;
+						while (fs.ReadByte() != 0) len++;
+						fs.Position = pos;
+						_strings[i] = "";
+						for (int j = 0; j < len; j++)
+						{
+							byte chr = br.ReadByte();
+							if (chr < 0x20 || chr > 0x7a) _strings[i] += $"\\x{chr:X2}";
+							else _strings[i] += (char)chr;
+						}
+					}
 				}
 			}
+			getString();
 		}
-		#region Strings nav buttons
+		void getString()
+		{
+			_stringsOriginal = _strings[_activeString];
+			lblSPos.Text = (_activeString + 1) + " / 695";
+			txtString.Text = _stringsOriginal;
+		}
+		
 		void cmdSPrevClick(object sender, EventArgs e)
 		{	//Prev/Next are by 1
-			updateStrings();
 			if (_activeString != 0) _activeString--;
-			readStrings();
+			getString();
 		}
 		void cmdSNextClick(object sender, EventArgs e)
 		{
-			updateStrings();
 			if (_activeString != 694) _activeString++;
-			readStrings();
+			getString();
 		}		
 		void cmdSPrev2Click(object sender, EventArgs e)
 		{	//Prev2/Next2 are by 20
-			updateStrings();
 			if (_activeString < 20) _activeString = 0; else _activeString -= 20;
-			readStrings();
+			getString();
 		}
 		void cmdSNext2Click(object sender, EventArgs e)
 		{
-			updateStrings();
 			if (_activeString > 674) _activeString = 694; else _activeString += 20;
-			readStrings();
+			getString();
 		}
 		void cmdSPrev3Click(object sender, EventArgs e)
 		{	//Prev3/Next3 are by 100
-			updateStrings();
 			if (_activeString < 100) _activeString = 0; else _activeString -= 100;
-			readStrings();
+			getString();
 		}
 		void cmdSNext3Click(object sender, EventArgs e)
 		{
-			updateStrings();
 			if (_activeString > 594) _activeString = 694; else _activeString += 100;
-			readStrings();
+			getString();
 		}
-		#endregion		
+
+		void cmdSaveStrings_Click(object sender, EventArgs e)
+		{
+			File.Copy(_strFile, Path.ChangeExtension(_strFile, ".bak"), true);
+			File.Delete(_strFile);
+			using (FileStream fs = File.OpenWrite(_strFile))
+			{
+				using (BinaryWriter bw = new BinaryWriter(fs))
+				{
+					uint offset = 0xAE0;
+					for (int i = 0; i < _strings.Length; i++)
+					{
+						fs.Position = i * 4;
+						bw.Write(offset);
+						fs.Position = offset;
+						if (_strings[i].Contains("\\x"))
+						{
+							List<byte> arr = new List<byte>();
+							for (int c = 0; c < _strings[i].Length; c++)
+							{
+								try
+								{
+									if (_strings[i][c] == '\\' && _strings[i][c + 1] == 'x')
+									{
+										c += 2;
+										arr.Add(byte.Parse(_strings[i].Substring(c, 2), System.Globalization.NumberStyles.HexNumber));
+										c++; // loop covers the next char
+									}
+									else arr.Add((byte)_strings[i][c]);
+								}
+								catch { arr.Add((byte)_strings[i][c]); }
+							}
+							bw.Write(arr.ToArray());
+						}
+						else bw.Write(_strings[i].ToCharArray());
+						bw.Flush();
+						fs.WriteByte(0);
+						offset = (uint)fs.Position;
+					}
+					fs.SetLength(fs.Position);
+				}
+				
+			}
+		}
+		#endregion
 
 		void loadTieText()
 		{
@@ -326,6 +348,7 @@ namespace Idmr.TieTextEditor
         void txtStringTextChanged(object sender, EventArgs e)
 		{
 			lblSCount.Text = (txtString.Text.Length - _stringsOriginal.Length).ToString();
+			_strings[_activeString] = txtString.Text;
 		}
 		void txtTieTextTextChanged(object sender, EventArgs e)
 		{
@@ -464,5 +487,5 @@ namespace Idmr.TieTextEditor
 			_titleOriginalLength = _titleOriginal.Length;
 			txtTitle_TextChanged("Save", new EventArgs());
         }
-    }
+	}
 }
