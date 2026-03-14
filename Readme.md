@@ -1,62 +1,68 @@
-﻿TIE Text Editor (formerly TIE File Reader)
-======================================
+﻿# [TIE Text Editor](https://github.com/MikeG621/TieTextEditor)
 
-Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 1.4
-Date: 2026.03.14
+Author: [Michael Gaisser](mailto:mjgaisser@gmail.com)  
+![GitHub Release](https://img.shields.io/github/v/release/MikeG621/TieTextEditor)
+![GitHub Release Date](https://img.shields.io/github/release-date/MikeG621/TieTextEditor)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/MikeG621/TieTextEditor/total)
 
 This utility enables the editing of strings for TIE95. Good for changing craft
 names, tech room info, other strings in the game.
 
-==Install==
+## Install
 TTE does not use an installer, simply download the latest ZIP file from the
 "Releases" page on Github and extract to your location of choice.
 
-==Uninstall==
+## Uninstall
 To remove TTE,  simply delete the directory where you placed it. There will be
 a "Settings.ini" located at
 "C:\Users\<user>\AppData\Local\Imperial Department of Military Research\TTE"
 which only saves the location of the TIE install so you don't have to select it
 every time.
 
-==========
-Version History
-
-v1.4, 14 Mar 2026
-- Various updates to address STRINGS.DAT [#2]
+## Latest Release
+#### v1.4, 14 Mar 2026
+- Various updates to address STRINGS.DAT [Issue [#2](https://github.com/MikeG621/TieTextEditor/issues/2)]
   - Now reads the entire file at once, storing all strings in an array.
   - Added a "Save" button to save the entire file at once.
   - Special characters (color codes, etc) now display as "\xHH" hex numbers. Editing those strings caused failures.
   - R/W no longer relies on the entry before/after it to determine length, now behaves the same as TIE and goes until the null termination.
-- Added ability to edit SHIP1 through 7 [#2]
+- Added ability to edit SHIP1 through 7 [Issue [#2](https://github.com/MikeG621/TieTextEditor/issues/2)]
 
-v1.3, 20 Jan 2023
-- Added support for TieText1 through 3, Title [#1]
+---
+### Additional Information
+#### Dependencies
+- [Idmr.Common](https://github.com/MikeG621/Common)
+- [Idmr.LfdReader](https://github.com/MikeG621/LfdReader)
+
+### Version History
+
+#### v1.3, 20 Jan 2023
+- Added support for TieText1 through 3, Title [Issue [#1](https://github.com/MikeG621/TieTextEditor/issues/1)]
 - Rewrote to fully use LfdReader
 - Various code cleanups
 
-v1.2, 24 Aug 2022
+#### v1.2, 24 Aug 2022
 - Converted from legacy code to modern project style
 - Renamed to Tie Text Editor
 - Added MPL
 
-v1.1.1, 02 Dec 2008
+#### v1.1.1, 02 Dec 2008
 - Minor code changes
 
-v1.1, 31 Oct 2008
+#### v1.1, 31 Oct 2008
 - Redid a lot of code, no longer keeps file open the entire time program is running.
 
-v1.0, 11 Nov 2007
+#### v1.0, 11 Nov 2007
 - Release
 
-==========
-Usage Notes
+---
+## Usage Notes
 
 The number at the bottom of the program is a counter keeping track of the
 difference between the original numbr of characters and what you have
 currently. It is *highly* encouraged that you keep that number zero.  The
 program does compensate if you decided to make it otherwise, but note that this
-may prevent compatability with other patches and may have other unforseen
+may prevent compatability with older patches and may have other unforseen
 consequqnces.
 
 Single arrows move 1 string. Double move 20 in STRINGS.DAT, 5 in the others.
@@ -65,7 +71,7 @@ Shipset#.lfd. For Shipset#.lfd, the File buttons change which file you're
 editing, there's two.
 
 The manual selection of the TIE installation and how it's saved is very crude
-for the time being and will absolutely be reworked with full auto-detection at
+for the time being and will possibly be reworked with full auto-detection at
 a later point. After 1.1.1 is was simply a hard-coded location for my own use.
 If the wrong directory is loaded, the program will crash. Start it again to
 select a different directory.
@@ -75,18 +81,13 @@ files. If for some reason that directory no longer becomes available, it will
 crash and you'll need to restart like you've never run it. Like I said, pretty
 crude right now.
 
-The current state is just to get it out there again.
-
-==========
-Copyright Information
+#### Copyright Information
 
 Copyright © 2007- Michael Gaisser
 This program and related files are licensed under the Mozilla Public License.
-See License.txt for the full text. If for some reason License.txt was not
+See [License.txt](License.txt) for the full text. If for some reason License.txt was not
 distributed with this program, you can obtain the full text of the license at
 http://mozilla.org/MPL/2.0/.
-
-The Galactic Empire: Empire Reborn is Copyright © 2004- Tiberius Fel
 
 "Star Wars" and related items are trademarks of LucasFilm Ltd and
 LucasArts Entertainment Co.
