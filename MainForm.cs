@@ -3,10 +3,14 @@
  * Copyright (C) 2006-2026 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
- * VERSION: 1.4
+ * VERSION: 1.4.0.2
  */
 
 /* CHANGELOG
+ * v1.4.0.2
+ * [FIX #4] Missed a null char
+ * v1.4.0.1
+ * [FIX #3] Left debug string
  * v1.4, 260314
  * [FIX #2] STRINGS Save button, R/W overhaul, special chars
  * [NEW #2] Added Ship#.lfd
@@ -569,7 +573,7 @@ namespace Idmr.TieTextEditor
 			_ship.Strings[2] = txtShipSpec2.Text + '\0' + txtShipOpt2.Text + '\0' + txtShipNums2.Text;
 			// reminder: don't need to worry about trailing \0's, as Encode will address that
 			var str = txtStats.Text.Replace("\r\n", "\0").Replace("\0\0", "\0");	// remove blank lines
-			_ship.Strings[3] = txtTechSpec.Text + '\0' + txtTechOpt.Text + str;
+			_ship.Strings[3] = txtTechSpec.Text + '\0' + txtTechOpt.Text + '\0' + str;
 			_ship.Strings[4] = txtLaunch.Text + '\0' + txtWeapon.Text;
 			_ship.Strings[5] = "";
 			for (int i = 0; i < lstMiss.Items.Count; i++)
