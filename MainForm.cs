@@ -96,8 +96,7 @@ namespace Idmr.TieTextEditor
 			}
 
 			//Strings--------
-			_strFile = "C:\\Users\\Me\\Downloads\\strings\\it_STRINGS.DAT";
-			//_strFile = _filePath + "\\STRINGS.DAT";
+			_strFile = _filePath + "\\STRINGS.DAT";
 			readStrings();
 			//TieText--------
 			loadTieText();
