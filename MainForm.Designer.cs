@@ -72,20 +72,56 @@ namespace Idmr.TieTextEditor
 			this.cmdSNext3 = new System.Windows.Forms.Button();
 			this.cmdSPrev3 = new System.Windows.Forms.Button();
 			this.tabStrings = new System.Windows.Forms.TabPage();
+			this.label2 = new System.Windows.Forms.Label();
+			this.cmdSaveStrings = new System.Windows.Forms.Button();
 			this.tabMaster = new System.Windows.Forms.TabControl();
 			this.tabTitle = new System.Windows.Forms.TabPage();
 			this.label1 = new System.Windows.Forms.Label();
 			this.cmdSaveTitle = new System.Windows.Forms.Button();
 			this.lblTitleCount = new System.Windows.Forms.Label();
 			this.txtTitle = new System.Windows.Forms.TextBox();
+			this.tabShip = new System.Windows.Forms.TabPage();
+			this.cmdPrevShip = new System.Windows.Forms.Button();
+			this.cmdNextShip = new System.Windows.Forms.Button();
+			this.tcShip = new System.Windows.Forms.TabControl();
+			this.tabShipInfo = new System.Windows.Forms.TabPage();
+			this.label9 = new System.Windows.Forms.Label();
+			this.txtWeapon = new System.Windows.Forms.TextBox();
+			this.txtLaunch = new System.Windows.Forms.TextBox();
+			this.label3 = new System.Windows.Forms.Label();
+			this.label4 = new System.Windows.Forms.Label();
+			this.txtShipNums2 = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.txtShipNums1 = new System.Windows.Forms.TextBox();
+			this.txtShipName = new System.Windows.Forms.TextBox();
+			this.txtShipSpec = new System.Windows.Forms.TextBox();
+			this.txtShipSpec2 = new System.Windows.Forms.TextBox();
+			this.txtShipOpt = new System.Windows.Forms.TextBox();
+			this.txtShipOpt2 = new System.Windows.Forms.TextBox();
+			this.tabShipStats = new System.Windows.Forms.TabPage();
+			this.label8 = new System.Windows.Forms.Label();
+			this.txtTechSpec = new System.Windows.Forms.TextBox();
+			this.txtTechOpt = new System.Windows.Forms.TextBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.txtStats = new System.Windows.Forms.TextBox();
+			this.tabShipMiss = new System.Windows.Forms.TabPage();
+			this.txtMiss = new System.Windows.Forms.TextBox();
+			this.lstMiss = new System.Windows.Forms.ListBox();
+			this.label7 = new System.Windows.Forms.Label();
 			this.fldTie = new System.Windows.Forms.FolderBrowserDialog();
-			this.cmdSaveStrings = new System.Windows.Forms.Button();
-			this.label2 = new System.Windows.Forms.Label();
+			this.chkDanger = new System.Windows.Forms.CheckBox();
+			this.label10 = new System.Windows.Forms.Label();
+			this.cmdSaveShip = new System.Windows.Forms.Button();
 			this.tabShipset.SuspendLayout();
 			this.tabTieText.SuspendLayout();
 			this.tabStrings.SuspendLayout();
 			this.tabMaster.SuspendLayout();
 			this.tabTitle.SuspendLayout();
+			this.tabShip.SuspendLayout();
+			this.tcShip.SuspendLayout();
+			this.tabShipInfo.SuspendLayout();
+			this.tabShipStats.SuspendLayout();
+			this.tabShipMiss.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// txtLine4
@@ -516,12 +552,31 @@ namespace Idmr.TieTextEditor
 			this.tabStrings.TabIndex = 0;
 			this.tabStrings.Text = "Strings.dat";
 			// 
+			// label2
+			// 
+			this.label2.Location = new System.Drawing.Point(22, 120);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(276, 37);
+			this.label2.TabIndex = 12;
+			this.label2.Text = "Hit \"Save\" when finished with all edits, not necessary per individual strings.";
+			// 
+			// cmdSaveStrings
+			// 
+			this.cmdSaveStrings.Location = new System.Drawing.Point(304, 121);
+			this.cmdSaveStrings.Name = "cmdSaveStrings";
+			this.cmdSaveStrings.Size = new System.Drawing.Size(75, 23);
+			this.cmdSaveStrings.TabIndex = 11;
+			this.cmdSaveStrings.Text = "&Save";
+			this.cmdSaveStrings.UseVisualStyleBackColor = true;
+			this.cmdSaveStrings.Click += new System.EventHandler(this.cmdSaveStrings_Click);
+			// 
 			// tabMaster
 			// 
 			this.tabMaster.Controls.Add(this.tabStrings);
 			this.tabMaster.Controls.Add(this.tabTieText);
 			this.tabMaster.Controls.Add(this.tabShipset);
 			this.tabMaster.Controls.Add(this.tabTitle);
+			this.tabMaster.Controls.Add(this.tabShip);
 			this.tabMaster.Location = new System.Drawing.Point(0, 0);
 			this.tabMaster.Name = "tabMaster";
 			this.tabMaster.SelectedIndex = 0;
@@ -581,27 +636,311 @@ namespace Idmr.TieTextEditor
 			this.txtTitle.TabIndex = 0;
 			this.txtTitle.TextChanged += new System.EventHandler(this.txtTitle_TextChanged);
 			// 
+			// tabShip
+			// 
+			this.tabShip.BackColor = System.Drawing.SystemColors.Control;
+			this.tabShip.Controls.Add(this.cmdSaveShip);
+			this.tabShip.Controls.Add(this.cmdPrevShip);
+			this.tabShip.Controls.Add(this.cmdNextShip);
+			this.tabShip.Controls.Add(this.tcShip);
+			this.tabShip.Location = new System.Drawing.Point(4, 22);
+			this.tabShip.Name = "tabShip";
+			this.tabShip.Size = new System.Drawing.Size(416, 158);
+			this.tabShip.TabIndex = 4;
+			this.tabShip.Text = "Ship1.lfd";
+			// 
+			// cmdPrevShip
+			// 
+			this.cmdPrevShip.Enabled = false;
+			this.cmdPrevShip.Location = new System.Drawing.Point(28, 127);
+			this.cmdPrevShip.Name = "cmdPrevShip";
+			this.cmdPrevShip.Size = new System.Drawing.Size(40, 24);
+			this.cmdPrevShip.TabIndex = 27;
+			this.cmdPrevShip.Text = "<File";
+			this.cmdPrevShip.Click += new System.EventHandler(this.cmdPrevShip_Click);
+			// 
+			// cmdNextShip
+			// 
+			this.cmdNextShip.Location = new System.Drawing.Point(348, 127);
+			this.cmdNextShip.Name = "cmdNextShip";
+			this.cmdNextShip.Size = new System.Drawing.Size(40, 24);
+			this.cmdNextShip.TabIndex = 26;
+			this.cmdNextShip.Text = "File>";
+			this.cmdNextShip.Click += new System.EventHandler(this.cmdNextShip_Click);
+			// 
+			// tcShip
+			// 
+			this.tcShip.Controls.Add(this.tabShipInfo);
+			this.tcShip.Controls.Add(this.tabShipStats);
+			this.tcShip.Controls.Add(this.tabShipMiss);
+			this.tcShip.Location = new System.Drawing.Point(3, 3);
+			this.tcShip.Multiline = true;
+			this.tcShip.Name = "tcShip";
+			this.tcShip.SelectedIndex = 0;
+			this.tcShip.Size = new System.Drawing.Size(410, 122);
+			this.tcShip.TabIndex = 25;
+			// 
+			// tabShipInfo
+			// 
+			this.tabShipInfo.Controls.Add(this.label9);
+			this.tabShipInfo.Controls.Add(this.txtWeapon);
+			this.tabShipInfo.Controls.Add(this.txtLaunch);
+			this.tabShipInfo.Controls.Add(this.label3);
+			this.tabShipInfo.Controls.Add(this.label4);
+			this.tabShipInfo.Controls.Add(this.txtShipNums2);
+			this.tabShipInfo.Controls.Add(this.label5);
+			this.tabShipInfo.Controls.Add(this.txtShipNums1);
+			this.tabShipInfo.Controls.Add(this.txtShipName);
+			this.tabShipInfo.Controls.Add(this.txtShipSpec);
+			this.tabShipInfo.Controls.Add(this.txtShipSpec2);
+			this.tabShipInfo.Controls.Add(this.txtShipOpt);
+			this.tabShipInfo.Controls.Add(this.txtShipOpt2);
+			this.tabShipInfo.Location = new System.Drawing.Point(4, 22);
+			this.tabShipInfo.Name = "tabShipInfo";
+			this.tabShipInfo.Padding = new System.Windows.Forms.Padding(3);
+			this.tabShipInfo.Size = new System.Drawing.Size(402, 96);
+			this.tabShipInfo.TabIndex = 0;
+			this.tabShipInfo.Text = "Ship";
+			this.tabShipInfo.UseVisualStyleBackColor = true;
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(6, 75);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(39, 13);
+			this.label9.TabIndex = 25;
+			this.label9.Text = "FILMs:";
+			// 
+			// txtWeapon
+			// 
+			this.txtWeapon.Enabled = false;
+			this.txtWeapon.Location = new System.Drawing.Point(149, 73);
+			this.txtWeapon.Name = "txtWeapon";
+			this.txtWeapon.Size = new System.Drawing.Size(93, 20);
+			this.txtWeapon.TabIndex = 24;
+			// 
+			// txtLaunch
+			// 
+			this.txtLaunch.Enabled = false;
+			this.txtLaunch.Location = new System.Drawing.Point(50, 72);
+			this.txtLaunch.Name = "txtLaunch";
+			this.txtLaunch.Size = new System.Drawing.Size(93, 20);
+			this.txtLaunch.TabIndex = 24;
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(6, 9);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(31, 13);
+			this.label3.TabIndex = 20;
+			this.label3.Text = "Ship:";
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(6, 31);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(32, 13);
+			this.label4.TabIndex = 21;
+			this.label4.Text = "OPT:";
+			// 
+			// txtShipNums2
+			// 
+			this.txtShipNums2.Enabled = false;
+			this.txtShipNums2.Location = new System.Drawing.Point(248, 50);
+			this.txtShipNums2.Name = "txtShipNums2";
+			this.txtShipNums2.Size = new System.Drawing.Size(93, 20);
+			this.txtShipNums2.TabIndex = 23;
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(6, 53);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(38, 13);
+			this.label5.TabIndex = 22;
+			this.label5.Text = "OPT2:";
+			// 
+			// txtShipNums1
+			// 
+			this.txtShipNums1.Enabled = false;
+			this.txtShipNums1.Location = new System.Drawing.Point(248, 28);
+			this.txtShipNums1.Name = "txtShipNums1";
+			this.txtShipNums1.Size = new System.Drawing.Size(93, 20);
+			this.txtShipNums1.TabIndex = 23;
+			// 
+			// txtShipName
+			// 
+			this.txtShipName.Location = new System.Drawing.Point(50, 6);
+			this.txtShipName.Name = "txtShipName";
+			this.txtShipName.Size = new System.Drawing.Size(120, 20);
+			this.txtShipName.TabIndex = 23;
+			// 
+			// txtShipSpec
+			// 
+			this.txtShipSpec.Enabled = false;
+			this.txtShipSpec.Location = new System.Drawing.Point(50, 28);
+			this.txtShipSpec.Name = "txtShipSpec";
+			this.txtShipSpec.Size = new System.Drawing.Size(93, 20);
+			this.txtShipSpec.TabIndex = 23;
+			// 
+			// txtShipSpec2
+			// 
+			this.txtShipSpec2.Enabled = false;
+			this.txtShipSpec2.Location = new System.Drawing.Point(50, 50);
+			this.txtShipSpec2.Name = "txtShipSpec2";
+			this.txtShipSpec2.Size = new System.Drawing.Size(93, 20);
+			this.txtShipSpec2.TabIndex = 23;
+			// 
+			// txtShipOpt
+			// 
+			this.txtShipOpt.Enabled = false;
+			this.txtShipOpt.Location = new System.Drawing.Point(149, 28);
+			this.txtShipOpt.Name = "txtShipOpt";
+			this.txtShipOpt.Size = new System.Drawing.Size(93, 20);
+			this.txtShipOpt.TabIndex = 23;
+			// 
+			// txtShipOpt2
+			// 
+			this.txtShipOpt2.Enabled = false;
+			this.txtShipOpt2.Location = new System.Drawing.Point(149, 50);
+			this.txtShipOpt2.Name = "txtShipOpt2";
+			this.txtShipOpt2.Size = new System.Drawing.Size(93, 20);
+			this.txtShipOpt2.TabIndex = 23;
+			// 
+			// tabShipStats
+			// 
+			this.tabShipStats.Controls.Add(this.label8);
+			this.tabShipStats.Controls.Add(this.txtTechSpec);
+			this.tabShipStats.Controls.Add(this.txtTechOpt);
+			this.tabShipStats.Controls.Add(this.label6);
+			this.tabShipStats.Controls.Add(this.txtStats);
+			this.tabShipStats.Location = new System.Drawing.Point(4, 22);
+			this.tabShipStats.Name = "tabShipStats";
+			this.tabShipStats.Padding = new System.Windows.Forms.Padding(3);
+			this.tabShipStats.Size = new System.Drawing.Size(402, 96);
+			this.tabShipStats.TabIndex = 1;
+			this.tabShipStats.Text = "Stats";
+			this.tabShipStats.UseVisualStyleBackColor = true;
+			// 
+			// label8
+			// 
+			this.label8.AutoSize = true;
+			this.label8.Location = new System.Drawing.Point(220, 43);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(60, 13);
+			this.label8.TabIndex = 24;
+			this.label8.Text = "Tech OPT:";
+			// 
+			// txtTechSpec
+			// 
+			this.txtTechSpec.Enabled = false;
+			this.txtTechSpec.Location = new System.Drawing.Point(286, 40);
+			this.txtTechSpec.Name = "txtTechSpec";
+			this.txtTechSpec.Size = new System.Drawing.Size(93, 20);
+			this.txtTechSpec.TabIndex = 25;
+			// 
+			// txtTechOpt
+			// 
+			this.txtTechOpt.Enabled = false;
+			this.txtTechOpt.Location = new System.Drawing.Point(286, 66);
+			this.txtTechOpt.Name = "txtTechOpt";
+			this.txtTechOpt.Size = new System.Drawing.Size(93, 20);
+			this.txtTechOpt.TabIndex = 26;
+			// 
+			// label6
+			// 
+			this.label6.Location = new System.Drawing.Point(220, 6);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(154, 31);
+			this.label6.TabIndex = 1;
+			this.label6.Text = "Typically speed, weapons, and hull/shield stats";
+			// 
+			// txtStats
+			// 
+			this.txtStats.Location = new System.Drawing.Point(9, 6);
+			this.txtStats.Multiline = true;
+			this.txtStats.Name = "txtStats";
+			this.txtStats.Size = new System.Drawing.Size(192, 84);
+			this.txtStats.TabIndex = 0;
+			this.txtStats.WordWrap = false;
+			// 
+			// tabShipMiss
+			// 
+			this.tabShipMiss.Controls.Add(this.label10);
+			this.tabShipMiss.Controls.Add(this.chkDanger);
+			this.tabShipMiss.Controls.Add(this.txtMiss);
+			this.tabShipMiss.Controls.Add(this.lstMiss);
+			this.tabShipMiss.Controls.Add(this.label7);
+			this.tabShipMiss.Location = new System.Drawing.Point(4, 22);
+			this.tabShipMiss.Name = "tabShipMiss";
+			this.tabShipMiss.Size = new System.Drawing.Size(402, 96);
+			this.tabShipMiss.TabIndex = 2;
+			this.tabShipMiss.Text = "Missions";
+			this.tabShipMiss.UseVisualStyleBackColor = true;
+			// 
+			// txtMiss
+			// 
+			this.txtMiss.Location = new System.Drawing.Point(80, 16);
+			this.txtMiss.Multiline = true;
+			this.txtMiss.Name = "txtMiss";
+			this.txtMiss.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.txtMiss.Size = new System.Drawing.Size(197, 77);
+			this.txtMiss.TabIndex = 3;
+			this.txtMiss.WordWrap = false;
+			// 
+			// lstMiss
+			// 
+			this.lstMiss.FormattingEnabled = true;
+			this.lstMiss.Location = new System.Drawing.Point(6, 16);
+			this.lstMiss.Name = "lstMiss";
+			this.lstMiss.Size = new System.Drawing.Size(68, 56);
+			this.lstMiss.TabIndex = 2;
+			this.lstMiss.SelectedIndexChanged += new System.EventHandler(this.lstMiss_SelectedIndexChanged);
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(3, 0);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(47, 13);
+			this.label7.TabIndex = 1;
+			this.label7.Text = "Missions";
+			// 
 			// fldTie
 			// 
 			this.fldTie.Description = "Select the TIE program directory";
 			// 
-			// cmdSaveStrings
+			// chkDanger
 			// 
-			this.cmdSaveStrings.Location = new System.Drawing.Point(304, 121);
-			this.cmdSaveStrings.Name = "cmdSaveStrings";
-			this.cmdSaveStrings.Size = new System.Drawing.Size(75, 23);
-			this.cmdSaveStrings.TabIndex = 11;
-			this.cmdSaveStrings.Text = "&Save";
-			this.cmdSaveStrings.UseVisualStyleBackColor = true;
-			this.cmdSaveStrings.Click += new System.EventHandler(this.cmdSaveStrings_Click);
+			this.chkDanger.AutoSize = true;
+			this.chkDanger.Location = new System.Drawing.Point(297, 68);
+			this.chkDanger.Name = "chkDanger";
+			this.chkDanger.Size = new System.Drawing.Size(64, 17);
+			this.chkDanger.TabIndex = 27;
+			this.chkDanger.Text = "Danger!";
+			this.chkDanger.UseVisualStyleBackColor = true;
+			this.chkDanger.CheckedChanged += new System.EventHandler(this.chkDanger_CheckedChanged);
 			// 
-			// label2
+			// label10
 			// 
-			this.label2.Location = new System.Drawing.Point(22, 120);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(276, 37);
-			this.label2.TabIndex = 12;
-			this.label2.Text = "Hit \"Save\" when finished with all edits, not necessary per individual strings.";
+			this.label10.Location = new System.Drawing.Point(283, 22);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(116, 43);
+			this.label10.TabIndex = 28;
+			this.label10.Text = "Do not check unless you absolutely know what you\'re doing!";
+			// 
+			// cmdSaveShip
+			// 
+			this.cmdSaveShip.Location = new System.Drawing.Point(185, 127);
+			this.cmdSaveShip.Name = "cmdSaveShip";
+			this.cmdSaveShip.Size = new System.Drawing.Size(50, 24);
+			this.cmdSaveShip.TabIndex = 28;
+			this.cmdSaveShip.Text = "&Save";
+			this.cmdSaveShip.UseVisualStyleBackColor = true;
+			this.cmdSaveShip.Click += new System.EventHandler(this.cmdSaveShip_Click);
 			// 
 			// MainForm
 			// 
@@ -623,6 +962,14 @@ namespace Idmr.TieTextEditor
 			this.tabMaster.ResumeLayout(false);
 			this.tabTitle.ResumeLayout(false);
 			this.tabTitle.PerformLayout();
+			this.tabShip.ResumeLayout(false);
+			this.tcShip.ResumeLayout(false);
+			this.tabShipInfo.ResumeLayout(false);
+			this.tabShipInfo.PerformLayout();
+			this.tabShipStats.ResumeLayout(false);
+			this.tabShipStats.PerformLayout();
+			this.tabShipMiss.ResumeLayout(false);
+			this.tabShipMiss.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -680,5 +1027,36 @@ namespace Idmr.TieTextEditor
         private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Button cmdSaveStrings;
+		private System.Windows.Forms.TabPage tabShip;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.TextBox txtShipNums2;
+		private System.Windows.Forms.TextBox txtShipNums1;
+		private System.Windows.Forms.TextBox txtShipSpec2;
+		private System.Windows.Forms.TextBox txtShipOpt2;
+		private System.Windows.Forms.TextBox txtShipOpt;
+		private System.Windows.Forms.TextBox txtShipSpec;
+		private System.Windows.Forms.TextBox txtShipName;
+		private System.Windows.Forms.TabControl tcShip;
+		private System.Windows.Forms.TabPage tabShipInfo;
+		private System.Windows.Forms.TabPage tabShipStats;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.TextBox txtStats;
+		private System.Windows.Forms.TabPage tabShipMiss;
+		private System.Windows.Forms.TextBox txtMiss;
+		private System.Windows.Forms.ListBox lstMiss;
+		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.Label label8;
+		private System.Windows.Forms.TextBox txtTechSpec;
+		private System.Windows.Forms.TextBox txtTechOpt;
+		private System.Windows.Forms.Label label9;
+		private System.Windows.Forms.TextBox txtWeapon;
+		private System.Windows.Forms.TextBox txtLaunch;
+		private System.Windows.Forms.Button cmdPrevShip;
+		private System.Windows.Forms.Button cmdNextShip;
+		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.CheckBox chkDanger;
+		private System.Windows.Forms.Button cmdSaveShip;
 	}
 }

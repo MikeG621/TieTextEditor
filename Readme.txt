@@ -2,8 +2,8 @@
 ======================================
 
 Author: Michael Gaisser (mjgaisser@gmail.com)
-Version: 1.3
-Date: 2023.01.20
+Version: 1.4
+Date: 2026.03.14
 
 This utility enables the editing of strings for TIE95. Good for changing craft
 names, tech room info, other strings in the game.
@@ -22,7 +22,15 @@ every time.
 ==========
 Version History
 
-v1.3, 20 Jan 2033
+v1.4, 14 Mar 2026
+- Various updates to address STRINGS.DAT [#2]
+  - Now reads the entire file at once, storing all strings in an array.
+  - Added a "Save" button to save the entire file at once.
+  - Special characters (color codes, etc) now display as "\xHH" hex numbers. Editing those strings caused failures.
+  - R/W no longer relies on the entry before/after it to determine length, now behaves the same as TIE and goes until the null termination.
+- Added ability to edit SHIP1 through 7 [#2]
+
+v1.3, 20 Jan 2023
 - Added support for TieText1 through 3, Title [#1]
 - Rewrote to fully use LfdReader
 - Various code cleanups

@@ -3,11 +3,13 @@
  * Copyright (C) 2006-2026 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
- * VERSION: 1.3+
+ * VERSION: 1.4
  */
 
 /* CHANGELOG
+ * v1.4, 260314
  * [FIX #2] STRINGS Save button, R/W overhaul, special chars
+ * [NEW #2] Added Ship#.lfd
  * v1.3, 230120
  * [NEW] Added TieText 1 thru 3, Title.lfd
  * [UPD] Rewrote to fully use LfdReader
@@ -46,13 +48,17 @@ namespace Idmr.TieTextEditor
 		int _currentTieTextFile;
 		int _activeTieText;
 		string[] _tieTextSubstrings;
-		long _tieTextOffset;
+		//long _tieTextOffset;
 		int _currentTTArray = 2;
 		Text _text;
 		// Shipset
 		int _activeShipset;
         readonly TextBox[] _shipsetTextBoxes;
 		LfdFile _shipset;
+		// Ship
+		int _activeShip = 1;
+		Text _ship;
+		int _activeMiss = -1;
         // other
         readonly string _filePath;
         int _titleOriginalLength;
@@ -111,7 +117,9 @@ namespace Idmr.TieTextEditor
 			_titleOriginal = text.Strings[0];
 			_titleOriginalLength = _titleOriginal.Length;
             txtTitle.Text = text.Strings[0].Replace("\n", "\r\n").Replace("\0", "\r\n");
-        }
+			//Ship-----------
+			loadShip();
+		}
 
 		#region Strings
 		void readStrings()
@@ -223,15 +231,11 @@ namespace Idmr.TieTextEditor
 		}
 		#endregion
 
+		#region TieText
 		void loadTieText()
 		{
-			using (FileStream fsTieText = File.Open(_filePath + "\\Resource\\TieText" + _currentTieTextFile + ".lfd", FileMode.Open, FileAccess.ReadWrite))
-			{
-				_activeTieText = 0;
-				var rmap = new Rmap(fsTieText);
-				_tieTextOffset = rmap.SubHeaders[_currentTieTextFile == 0 ? 1 : 0].Offset;
-				_text = new Text(fsTieText, _tieTextOffset);
-			}
+			var tt = new LfdFile($"{_filePath}\\Resource\\TieText{_currentTieTextFile}.lfd");
+			_text = (Text)tt.Resources[_currentTieTextFile == 0 ? 1 : 0];
             tabTieText.Text = "TieText" + _currentTieTextFile + ".lfd";
             _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
             readTieText();
@@ -257,7 +261,7 @@ namespace Idmr.TieTextEditor
 			txtTieText.Text = _tieTextSubstrings[_activeTieText];
 			lblTPos.Text = (_activeTieText + 1) + " / " + _tieTextSubstrings.Length;
 		}
-		#region TieText nav buttons
+		
 		void cmdTNextClick(object sender, EventArgs e)
 		{
 			updateTieText();
@@ -373,9 +377,10 @@ namespace Idmr.TieTextEditor
             if (lbl.Text == "0") lbl.ForeColor = System.Drawing.Color.Lime;
             else lbl.ForeColor = System.Drawing.Color.Red;
         }
-        #endregion
+		#endregion
 
-        void updateShipset()
+		#region Shipset
+		void updateShipset()
 		{
             var text = (Text)_shipset.Resources[0];
             string[] substrings = text.Strings[_activeShipset].Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
@@ -406,7 +411,7 @@ namespace Idmr.TieTextEditor
 				_shipsetTextBoxes[i].Text = substrings.Length > i + 2 ? substrings[i + 2] : "";
 			lblShPos.Text = (_activeShipset + 1) + " / " + text.NumberOfStrings;
 		}
-		#region Shipset buttons
+		
 		void cmdShNextClick(object sender, EventArgs e)
 		{
 			updateShipset();
@@ -488,5 +493,101 @@ namespace Idmr.TieTextEditor
 			_titleOriginalLength = _titleOriginal.Length;
 			txtTitle_TextChanged("Save", new EventArgs());
         }
+
+		#region Ship
+		void loadShip()
+		{
+			tabShip.Text = $"Ship{_activeShip}.lfd";
+			var shipFile = new LfdFile($"{_filePath}\\Resource\\Ship{_activeShip}.lfd");
+			_ship = (Text)shipFile.Resources[0];
+			txtShipName.Text = _ship.Strings[0];
+			string[] subs = _ship.Strings[1].Split('\0');
+			txtShipSpec.Text = subs[0];
+			txtShipOpt.Text = subs[1];
+			txtShipNums1.Text = subs[2];
+			subs = _ship.Strings[2].Split('\0');
+			txtShipSpec2.Text = subs[0];
+			txtShipOpt2.Text = subs[1];
+			txtShipNums2.Text = subs[2];
+			subs = _ship.Strings[3].Split('\0');
+			txtTechSpec.Text = subs[0];
+			txtTechOpt.Text = subs[1];
+			txtStats.Text = "";
+			for (int i = 2; i < subs.Length; i++)
+			{
+				txtStats.Text += subs[i];
+				if (i < subs.Length - 1) txtStats.Text += "\r\n";
+			}
+			subs = _ship.Strings[4].Split('\0');
+			txtLaunch.Text = subs[0];
+			txtWeapon.Text = subs[1];
+			subs = _ship.Strings[5].Split('\0');
+			lstMiss.Items.Clear();
+			for (int i = 0; i < subs.Length; i++) lstMiss.Items.Add(subs[i]);
+			lstMiss.SelectedIndex = 0;
+		}
+
+		void chkDanger_CheckedChanged(object sender, EventArgs e)
+		{
+			var state = chkDanger.Checked;
+			txtShipSpec.Enabled = state;
+			txtShipOpt.Enabled = state;
+			txtShipNums1.Enabled = state;
+			txtShipSpec.Enabled = state;
+			txtShipOpt2.Enabled = state;
+			txtShipNums2.Enabled = state;
+			txtShipSpec2.Enabled = state;
+			txtLaunch.Enabled = state;
+			txtWeapon.Enabled = state;
+			txtTechOpt.Enabled = state;
+			txtTechSpec.Enabled = state;
+		}
+
+		void cmdNextShip_Click(object sender, EventArgs e)
+		{
+			if (_activeShip < 7)
+			{
+				_activeShip++;
+				cmdPrevShip.Enabled = true;
+			}
+			if (_activeShip == 7) cmdNextShip.Enabled = false;
+			loadShip();
+		}
+		void cmdPrevShip_Click(object sender, EventArgs e)
+		{
+			if (_activeShip > 1)
+			{
+				_activeShip--;
+				cmdNextShip.Enabled = true;
+			}
+			if (_activeShip == 1) cmdPrevShip.Enabled = false;
+			loadShip();
+		}
+		void cmdSaveShip_Click(object sender, EventArgs e)
+		{
+			_ship.Strings[0] = txtShipName.Text;
+			_ship.Strings[1] = txtShipSpec.Text + '\0' + txtShipOpt.Text + '\0' + txtShipNums1.Text;
+			_ship.Strings[2] = txtShipSpec2.Text + '\0' + txtShipOpt2.Text + '\0' + txtShipNums2.Text;
+			// reminder: don't need to worry about trailing \0's, as Encode will address that
+			var str = txtStats.Text.Replace("\r\n", "\0").Replace("\0\0", "\0");	// remove blank lines
+			_ship.Strings[3] = txtTechSpec.Text + '\0' + txtTechOpt.Text + str;
+			_ship.Strings[4] = txtLaunch.Text + '\0' + txtWeapon.Text;
+			_ship.Strings[5] = "";
+			for (int i = 0; i < lstMiss.Items.Count; i++)
+				_ship.Strings[5] += lstMiss.Items[i].ToString() + '\0';
+			lstMiss_SelectedIndexChanged("save", new EventArgs());  // force update the current
+			_ship.EncodeResource();
+			var shipFile = new LfdFile($"{_filePath}\\Resource\\Ship{_activeShip}.lfd");
+			shipFile.Resources[0] = _ship;
+			shipFile.Write();
+		}
+
+		void lstMiss_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (_activeMiss != -1) _ship.Strings[6 + _activeMiss] = txtMiss.Text.Replace("\r\n", "\0");
+			_activeMiss = lstMiss.SelectedIndex;
+			txtMiss.Text = _ship.Strings[6 + _activeMiss].Replace("\0", "\r\n");
+		}
+		#endregion
 	}
 }
