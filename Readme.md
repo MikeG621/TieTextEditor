@@ -63,7 +63,7 @@ difference between the original numbr of characters and what you have
 currently. It is *highly* encouraged that you keep that number zero.  The
 program does compensate if you decided to make it otherwise, but note that this
 may prevent compatability with older patches and may have other unforseen
-consequqnces.
+consequences.
 
 Single arrows move 1 string. Double move 20 in STRINGS.DAT, 5 in the others.
 Triple arrows move 100 in STRINGS.DAT, 20 in TieText0.lfd, and 10 in
