@@ -3,10 +3,11 @@
  * Copyright (C) 2006-2026 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  * 
- * VERSION: 1.4.0.2
+ * VERSION: 1.4.0.2+
  */
 
 /* CHANGELOG
+ * [UPD] changes for LfdReader v3
  * v1.4.0.2
  * [FIX #4] Missed a null char
  * v1.4.0.1
@@ -117,9 +118,9 @@ namespace Idmr.TieTextEditor
 			//Title----------
 			var title = new LfdFile(_filePath + "\\Resource\\Title.lfd");
             Text text = (Text)title.Resources[5];
-			_titleOriginal = text.Strings[0];
+			_titleOriginal = text.Strings[0].Value;
 			_titleOriginalLength = _titleOriginal.Length;
-            txtTitle.Text = text.Strings[0].Replace("\n", "\r\n").Replace("\0", "\r\n");
+            txtTitle.Text = text.Strings[0].FormattedValue;
 			//Ship-----------
 			loadShip();
 		}
@@ -240,7 +241,8 @@ namespace Idmr.TieTextEditor
 			var tt = new LfdFile($"{_filePath}\\Resource\\TieText{_currentTieTextFile}.lfd");
 			_text = (Text)tt.Resources[_currentTieTextFile == 0 ? 1 : 0];
             tabTieText.Text = "TieText" + _currentTieTextFile + ".lfd";
-            _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
+			_tieTextSubstrings = _text.Strings[_currentTTArray].GetSubstringArray();
+			_activeTieText = 0;
             readTieText();
 			cmdPrevArray.Enabled = (_currentTTArray != 0);
 			cmdNextArray.Enabled = (_currentTTArray + 1 != _text.NumberOfStrings);
@@ -251,8 +253,7 @@ namespace Idmr.TieTextEditor
 			if (txtTieText.Text == _tieTextSubstrings[_activeTieText]) return;
 
 			_tieTextSubstrings[_activeTieText] = txtTieText.Text;
-			string fullStr = string.Join("\0", _tieTextSubstrings);
-			_text.Strings[_currentTTArray] = fullStr;
+			_text.Strings[_currentTTArray].SetSubstring(_activeTieText, txtTieText.Text);
 			_text.EncodeResource();
 			var lfd = new LfdFile(_filePath + "\\Resource\\TieText" + _currentTieTextFile + ".lfd");
 			lfd.Resources[_currentTieTextFile == 0 ? 1 : 0] = _text;
@@ -333,7 +334,7 @@ namespace Idmr.TieTextEditor
 			if (_currentTTArray == 0) return;
 
 			_currentTTArray--;
-            _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
+            _tieTextSubstrings = _text.Strings[_currentTTArray].Value.Split('\0');
 			_activeTieText = 0;
             readTieText();
 			cmdPrevArray.Enabled = (_currentTTArray != 0);
@@ -344,7 +345,7 @@ namespace Idmr.TieTextEditor
 			if (_currentTTArray == _text.NumberOfStrings - 1) return;
 
 			_currentTTArray++;
-            _tieTextSubstrings = _text.Strings[_currentTTArray].Split('\0');
+            _tieTextSubstrings = _text.Strings[_currentTTArray].Value.Split('\0');
 			_activeTieText = 0;
             readTieText();
             cmdPrevArray.Enabled = true;
@@ -365,14 +366,14 @@ namespace Idmr.TieTextEditor
         void txtShipset_TextChanged(object sender, EventArgs e)
         {
             int count;
-            count = txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length +
-                txtLine3.Text.Length + txtLine4.Text.Length + txtLine5.Text.Length + txtLine6.Text.Length - ((Text)_shipset.Resources[0]).Strings[_activeShipset].TrimEnd('\0').Length + 2;
+            count = 4 + txtName.Text.Length + txtOPT.Text.Length + txtLine1.Text.Length + txtLine2.Text.Length +
+                txtLine3.Text.Length + txtLine4.Text.Length + txtLine5.Text.Length + txtLine6.Text.Length - ((Text)_shipset.Resources[0]).Strings[_activeShipset].Length;
 			for (int i = 1; i < 6; i++) if (_shipsetTextBoxes[i].Text != "") count++;
             lblShCount.Text = count.ToString();
         }
         void txtTitle_TextChanged(object sender, EventArgs e)
         {
-			lblTitleCount.Text = (txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0\0", "\0\n\0").Length - _titleOriginalLength).ToString();
+			lblTitleCount.Text = (txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0", "\0\n\0").Length - _titleOriginalLength).ToString();
         }
         void lblCount_TextChanged(object sender, EventArgs e)
         {
@@ -386,7 +387,7 @@ namespace Idmr.TieTextEditor
 		void updateShipset()
 		{
             var text = (Text)_shipset.Resources[0];
-            string[] substrings = text.Strings[_activeShipset].Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+			string[] substrings = text.Strings[_activeShipset].GetSubstringArray();
             bool linesUnmodified = true;
 			for (int i = 0; i < 6; i++) if (substrings.Length > i + 2 && _shipsetTextBoxes[i].Text != substrings[i + 2]) linesUnmodified = false;	//check existing
 			for (int i = substrings.Length - 2; i < 6; i++) if (_shipsetTextBoxes[i].Text != "") linesUnmodified = false;	// check for adds
@@ -399,7 +400,7 @@ namespace Idmr.TieTextEditor
             };
             for (int i = 0; i < 6; i++)
 				if (_shipsetTextBoxes[i].Text != "") usedStrings.Add(_shipsetTextBoxes[i].Text);
-			text.Strings[_activeShipset] = string.Join("\0", usedStrings.ToArray());
+			text.Strings[_activeShipset].Value = string.Join("\0", usedStrings.ToArray());
 			text.EncodeResource();
 			_shipset.Write();
 		}
@@ -407,7 +408,7 @@ namespace Idmr.TieTextEditor
 		void readShipset()
 		{
 			var text = (Text)_shipset.Resources[0];
-			string[] substrings = text.Strings[_activeShipset].Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+			string[] substrings = text.Strings[_activeShipset].GetSubstringArray();
             txtName.Text = substrings[0];
 			txtOPT.Text = substrings[1];
 			for (int i = 0; i < 6; i++)
@@ -489,10 +490,10 @@ namespace Idmr.TieTextEditor
         {
             var title = new LfdFile(_filePath + "\\Resource\\Title.lfd");
             Text text = (Text)title.Resources[5];
-			text.Strings[0] = txtTitle.Text.Replace("\r\n", "\0").Replace("\0\0\0", "\0\n\0");
+			text.Strings[0].FormattedValue = txtTitle.Text;
 			text.EncodeResource();
 			title.Write();
-			_titleOriginal = text.Strings[0].TrimEnd('\0');
+			_titleOriginal = text.Strings[0].Value;
 			_titleOriginalLength = _titleOriginal.Length;
 			txtTitle_TextChanged("Save", new EventArgs());
         }
@@ -503,16 +504,16 @@ namespace Idmr.TieTextEditor
 			tabShip.Text = $"Ship{_activeShip}.lfd";
 			var shipFile = new LfdFile($"{_filePath}\\Resource\\Ship{_activeShip}.lfd");
 			_ship = (Text)shipFile.Resources[0];
-			txtShipName.Text = _ship.Strings[0];
-			string[] subs = _ship.Strings[1].Split('\0');
+			txtShipName.Text = _ship.Strings[0].Value;
+			string[] subs = _ship.Strings[1].GetSubstringArray();
 			txtShipSpec.Text = subs[0];
 			txtShipOpt.Text = subs[1];
 			txtShipNums1.Text = subs[2];
-			subs = _ship.Strings[2].Split('\0');
+			subs = _ship.Strings[2].GetSubstringArray();
 			txtShipSpec2.Text = subs[0];
 			txtShipOpt2.Text = subs[1];
 			txtShipNums2.Text = subs[2];
-			subs = _ship.Strings[3].Split('\0');
+			subs = _ship.Strings[3].GetSubstringArray();
 			txtTechSpec.Text = subs[0];
 			txtTechOpt.Text = subs[1];
 			txtStats.Text = "";
@@ -521,10 +522,10 @@ namespace Idmr.TieTextEditor
 				txtStats.Text += subs[i];
 				if (i < subs.Length - 1) txtStats.Text += "\r\n";
 			}
-			subs = _ship.Strings[4].Split('\0');
+			subs = _ship.Strings[4].GetSubstringArray();
 			txtLaunch.Text = subs[0];
 			txtWeapon.Text = subs[1];
-			subs = _ship.Strings[5].Split('\0');
+			subs = _ship.Strings[5].GetSubstringArray();
 			lstMiss.Items.Clear();
 			for (int i = 0; i < subs.Length; i++) lstMiss.Items.Add(subs[i]);
 			lstMiss.SelectedIndex = 0;
@@ -568,16 +569,16 @@ namespace Idmr.TieTextEditor
 		}
 		void cmdSaveShip_Click(object sender, EventArgs e)
 		{
-			_ship.Strings[0] = txtShipName.Text;
-			_ship.Strings[1] = txtShipSpec.Text + '\0' + txtShipOpt.Text + '\0' + txtShipNums1.Text;
-			_ship.Strings[2] = txtShipSpec2.Text + '\0' + txtShipOpt2.Text + '\0' + txtShipNums2.Text;
+			_ship.Strings[0].Value = txtShipName.Text;
+			_ship.Strings[1].Value = txtShipSpec.Text + '\0' + txtShipOpt.Text + '\0' + txtShipNums1.Text;
+			_ship.Strings[2].Value = txtShipSpec2.Text + '\0' + txtShipOpt2.Text + '\0' + txtShipNums2.Text;
 			// reminder: don't need to worry about trailing \0's, as Encode will address that
 			var str = txtStats.Text.Replace("\r\n", "\0").Replace("\0\0", "\0");	// remove blank lines
-			_ship.Strings[3] = txtTechSpec.Text + '\0' + txtTechOpt.Text + '\0' + str;
-			_ship.Strings[4] = txtLaunch.Text + '\0' + txtWeapon.Text;
-			_ship.Strings[5] = "";
-			for (int i = 0; i < lstMiss.Items.Count; i++)
-				_ship.Strings[5] += lstMiss.Items[i].ToString() + '\0';
+			_ship.Strings[3].Value = txtTechSpec.Text + '\0' + txtTechOpt.Text + '\0' + str;
+			_ship.Strings[4].Value = txtLaunch.Text + '\0' + txtWeapon.Text;
+			_ship.Strings[5].Value = lstMiss.Items[0].ToString();
+			for (int i = 1; i < lstMiss.Items.Count; i++)
+				_ship.Strings[5].Value += '\0' + lstMiss.Items[i].ToString();
 			lstMiss_SelectedIndexChanged("save", new EventArgs());  // force update the current
 			_ship.EncodeResource();
 			var shipFile = new LfdFile($"{_filePath}\\Resource\\Ship{_activeShip}.lfd");
@@ -587,9 +588,9 @@ namespace Idmr.TieTextEditor
 
 		void lstMiss_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (_activeMiss != -1) _ship.Strings[6 + _activeMiss] = txtMiss.Text.Replace("\r\n", "\0");
+			if (_activeMiss != -1) _ship.Strings[6 + _activeMiss].FormattedValue = txtMiss.Text;
 			_activeMiss = lstMiss.SelectedIndex;
-			txtMiss.Text = _ship.Strings[6 + _activeMiss].Replace("\0", "\r\n");
+			txtMiss.Text = _ship.Strings[6 + _activeMiss].FormattedValue;
 		}
 		#endregion
 	}
